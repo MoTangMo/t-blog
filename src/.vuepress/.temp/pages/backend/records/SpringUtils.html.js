@@ -1,0 +1,16 @@
+import comp from "/Users/a0000/Documents/project/t-blog/src/.vuepress/.temp/pages/backend/records/SpringUtils.html.vue"
+const data = JSON.parse("{\"path\":\"/backend/records/SpringUtils.html\",\"title\":\"Spring常用工具类\",\"lang\":\"zh-CN\",\"frontmatter\":{\"title\":\"Spring常用工具类\",\"cover\":\"/assets/images/cover1.jpg\",\"icon\":\"code\",\"order\":3,\"author\":\"Mr.T\",\"date\":\"2024-05-01T00:00:00.000Z\",\"category\":[\"Spring\"],\"tag\":[\"Spring 系列\",\"records\"],\"footer\":\"要有一双发现美的眼睛\",\"copyright\":\"无版权\",\"description\":\"Spring工具类 目录 封装Spring工具类 基于SpringUtils 创建异步任务管理器 Spring 已经是Java Web等应用开发的行业标准了，可以说Java程序员几乎等于Spring开发程序员了，可想而知Spring 在Java开发中的地位，而下面就是采自于若依的一些关于Spring 获取bean的，开启异步任务的一些工具类。 封装Sp...\",\"gitInclude\":[],\"head\":[[\"meta\",{\"property\":\"og:url\",\"content\":\"https://github.com/MoTangMo/t-blog/backend/records/SpringUtils.html\"}],[\"meta\",{\"property\":\"og:site_name\",\"content\":\"T-Blog\"}],[\"meta\",{\"property\":\"og:title\",\"content\":\"Spring常用工具类\"}],[\"meta\",{\"property\":\"og:description\",\"content\":\"Spring工具类 目录 封装Spring工具类 基于SpringUtils 创建异步任务管理器 Spring 已经是Java Web等应用开发的行业标准了，可以说Java程序员几乎等于Spring开发程序员了，可想而知Spring 在Java开发中的地位，而下面就是采自于若依的一些关于Spring 获取bean的，开启异步任务的一些工具类。 封装Sp...\"}],[\"meta\",{\"property\":\"og:type\",\"content\":\"article\"}],[\"meta\",{\"property\":\"og:image\",\"content\":\"https://github.com/MoTangMo/t-blog/assets/images/cover1.jpg\"}],[\"meta\",{\"property\":\"og:locale\",\"content\":\"zh-CN\"}],[\"meta\",{\"name\":\"twitter:card\",\"content\":\"summary_large_image\"}],[\"meta\",{\"name\":\"twitter:image:src\",\"content\":\"https://github.com/MoTangMo/t-blog/assets/images/cover1.jpg\"}],[\"meta\",{\"name\":\"twitter:image:alt\",\"content\":\"Spring常用工具类\"}],[\"meta\",{\"property\":\"article:author\",\"content\":\"Mr.T\"}],[\"meta\",{\"property\":\"article:tag\",\"content\":\"Spring 系列\"}],[\"meta\",{\"property\":\"article:tag\",\"content\":\"records\"}],[\"meta\",{\"property\":\"article:published_time\",\"content\":\"2024-05-01T00:00:00.000Z\"}],[\"script\",{\"type\":\"application/ld+json\"},\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"Article\\\",\\\"headline\\\":\\\"Spring常用工具类\\\",\\\"image\\\":[\\\"https://github.com/MoTangMo/t-blog/assets/images/cover1.jpg\\\"],\\\"datePublished\\\":\\\"2024-05-01T00:00:00.000Z\\\",\\\"dateModified\\\":null,\\\"author\\\":[{\\\"@type\\\":\\\"Person\\\",\\\"name\\\":\\\"Mr.T\\\"}]}\"]]},\"headers\":[{\"level\":2,\"title\":\"目录\",\"slug\":\"目录\",\"link\":\"#目录\",\"children\":[{\"level\":3,\"title\":\"封装Spring工具类\",\"slug\":\"封装spring工具类\",\"link\":\"#封装spring工具类\",\"children\":[]}]},{\"level\":2,\"title\":\"基于SpringUtils 创建异步任务管理器\",\"slug\":\"基于springutils-创建异步任务管理器\",\"link\":\"#基于springutils-创建异步任务管理器\",\"children\":[]}],\"readingTime\":{\"minutes\":2.48,\"words\":744},\"filePathRelative\":\"backend/records/SpringUtils.md\",\"localizedDate\":\"2024年5月1日\",\"excerpt\":\"\",\"autoDesc\":true}")
+export { comp, data }
+
+if (import.meta.webpackHot) {
+  import.meta.webpackHot.accept()
+  if (__VUE_HMR_RUNTIME__.updatePageData) {
+    __VUE_HMR_RUNTIME__.updatePageData(data)
+  }
+}
+
+if (import.meta.hot) {
+  import.meta.hot.accept(({ data }) => {
+    __VUE_HMR_RUNTIME__.updatePageData(data)
+  })
+}
