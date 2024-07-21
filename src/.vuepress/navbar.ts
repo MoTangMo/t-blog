@@ -57,6 +57,11 @@ export default navbar([
         prefix: "/backend/spring/",
         children:[
           {
+            text: "剖析Spring",
+            icon: "font",
+            link: "Record-Spring"
+          },
+          {
             text: "Spring Security",
             icon: "guitar",
             link: "SpringSecurity"

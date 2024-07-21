@@ -1,3 +1,18 @@
+---
+title: 重学Vue3 
+icon: code
+cover: /assets/images/cover5.jpg
+date: 2024-07-21
+star: true
+sticky: true
+category:
+  - Vue
+tag:
+  - 源码
+  - 前端
+  - JavaScript
+---
+
 # 重学Vue3
 
 ## 目录
@@ -17,14 +32,13 @@
     - [创建rollup配置](#创建rollup配置)
     - [测试](#测试)
   - [配置路径映射](#配置路径映射)
-- [探索源码](#探索源码)
-  - [响应系统](#响应系统)
-    - [js的程序性](#js的程序性)
-    - [令程序更加聪明](#令程序更加聪明)
-    - [vue2 响应式采用Object.defineProperty在设计上的缺陷](#vue2-响应式采用ObjectdefineProperty在设计上的缺陷)
-    - [vue3的改进方案](#vue3的改进方案)
-      - [proxy的使用](#proxy的使用)
-      - [Reflect](#Reflect)
+- [响应系统](#响应系统)
+  - [js的程序性](#js的程序性)
+  - [令程序更加聪明](#令程序更加聪明)
+  - [vue2 响应式采用Object.defineProperty在设计上的缺陷](#vue2-响应式采用ObjectdefineProperty在设计上的缺陷)
+  - [vue3的改进方案](#vue3的改进方案)
+    - [proxy的使用](#proxy的使用)
+    - [Reflect](#Reflect)
   - [初入reactivity模块](#初入reactivity模块)
     - [阅读源码](#阅读源码)
     - [初创reactivity模块](#初创reactivity模块)
@@ -35,6 +49,24 @@
       - [测试](#测试)
   - [升级响应式模块代码](#升级响应式模块代码)
     - [测试](#测试)
+    - [reactivity的弊端](#reactivity的弊端)
+  - [Ref的空降](#Ref的空降)
+    - [测试代码](#测试代码)
+  - [Computed](#Computed)
+    - [Computed 方法](#Computed-方法)
+    - [ComputedRefImpl 类实现](#ComputedRefImpl-类实现)
+  - [Watch](#Watch)
+    - [使用](#使用)
+    - [Scheduler解析](#Scheduler解析)
+    - [Secheduler中的懒加载](#Secheduler中的懒加载)
+    - [Scheduler 控制执行顺序的核心 queuePreFlushCb](#Scheduler-控制执行顺序的核心-queuePreFlushCb)
+    - [Watch监听器](#Watch监听器)
+      - [1. 判断是否属性Reactive类型](#1-判断是否属性Reactive类型)
+    - [2. 实现watch 触发函数](#2-实现watch-触发函数)
+- [ Vue的运行时渲染](#-Vue的运行时渲染)
+  - [VNode](#VNode)
+  - [挂载](#挂载)
+  - [更新](#更新)
 
 ## Vue3 的源码结构
 
@@ -152,11 +184,11 @@ pnpm build
 
 下载完成以后就可以在右键菜单栏处看到基于Live Server运行了
 
-![](image/image_j3XkIQG68S.png)
+![](image/image_C0P_TQjQps.png)
 
 点击运行后，我们可以从服务器指定端口获取资源，就证明运行成功了
 
-![](image/image_Z2O4A4myUL.png)
+![](image/image_YYxGh9ENIw.png)
 
 接下来我们就可以尝试做debug处理了
 
@@ -170,15 +202,15 @@ pnpm build
 
 重新构建，我们就能发现文件多了.map
 
-![](image/image_jo_ihClygb.png)
+![](image/image_-YY_Dx4oJr.png)
 
 打开浏览器的调试工具，到sources栏下， 就能看到vue的所有相关源码了
 
-![](image/image_Q6oniw9Nak.png)
+![](image/image_wfQUt5CfjM.png)
 
 打上断点，刷新就能进行debug模式啦
 
-![](image/image_G1_-zMWyAI.png)
+![](image/image_XEsZOLIEwv.png)
 
 ## 动手构建自己的Vue框架
 
@@ -300,7 +332,7 @@ npm run build
 
 出现dist包就没有问题了
 
-![](image/image_HMaC8VBlOg.png)
+![](image/image_KDnZAFCfhb.png)
 
 ### 配置路径映射
 
@@ -345,9 +377,7 @@ import {isArray} from '@vue/shared';
 
 有了这个路径映射我们就可以更好地对模块内容进行导入了
 
-## 探索源码
-
-### 响应系统
+## 响应系统
 
 #### js的程序性
 
@@ -478,7 +508,7 @@ total = product.price \* product.quantity
 
 这段代码其实就是通过监听product的quantity属性是否发生了改变，即是否触发了setter行为，如果触发了就重新进行计算，通过这样的方式确实让程序智能起来了
 
-![](image/image_mxKon6nRu3.png)
+![](image/image_dfro4I2hZ2.png)
 
 vue2 也是采用了这种方式来感知属性的变化的，但是vue3却放弃了使用这种方式
 
@@ -596,7 +626,7 @@ Reflect它提供了拦截 JavaScript 操作的方法，比如get，has等方法,
 
 这样，this的指向会发生变动，再看看，GETTER就会如期的出现三次了
 
-![](image/image_o3PcKmNr00.png)
+![](image/image_Zb6RxGF949.png)
 
 所以Reflect和Proxy其实是一对最佳搭档，Reflect可以帮助Proxy修改this的指向
 
@@ -659,13 +689,13 @@ reactiveMap则是一个WeakMap，所谓WeakMap从名字上看Weak就是弱的意
 
 ```
 
-![](image/image_8GFNK7vaju.png)
+![](image/image_GCY5N9JyPS.png)
 
 如果此时将key置空，即obj = null,可看到结果一个wm1已为null，而wm2 是仍存在结果的，所以弱引用的WeakMap是不影响垃圾回收的，也更加适用于数据需要不断发生变动的reactivity模块
 
-![](image/image_r6G_OBy68g.png)
+![](image/image_u3bzOJ1-ie.png)
 
-![](image/image_qDdJtQhAln.png)
+![](image/image_CVBJ2PBNqG.png)
 
 所以初代方法应该是这样子，主要逻辑是设置一个代理缓存，然后从缓存中查询看有没有存有target对象的代理，有就从缓存中取，否则就创建一个target代理
 
@@ -1115,4 +1145,537 @@ export function triggerEffect(effect : ReactiveEffect){
 </script>
 
 </html>
+```
+
+#### reactivity的弊端
+
+1. 无法对一个非对象形式的变量具备响应性，因为new Proxy 是需要接收一个对象的，而如果我们传入的不是对象，那就会报错了
+2. 无法对解构出来的属性具备响应性
+
+### Ref的空降
+
+Ref就是为了解决Reactive无法解决的基础类型数据，但是Reactive仍然是可以使用的，即如果判断数据是复杂类型的数据，仍然会调用Reactive的
+
+那么Ref又是怎么对数据进行处理的呢？
+
+```typescript
+export function ref(value?:unknown) {
+    return  createRef(value,false)
+}
+```
+
+首先会有一个createRef方法构建Ref数据，这里首先会判断数据是否是一个Ref数据，是否是Ref数据得从RefImpl这个Ref实现类中的\_val\_isRef属性进行判断的
+
+```typescript
+/**
+ * 构建Ref响应式数据
+ * @param rawValue 
+ * @param shallow 
+ * @returns 
+ */
+function createRef(rawValue:unknown , shallow: boolean){
+    if(isRef(rawValue)){
+        return rawValue
+    }
+
+    return new RefImpl(rawValue,shallow)
+}
+
+
+/**
+ * 
+ * 判断是否是Ref类型数据
+ * 
+ */
+export function isRef(r: any):r is Ref{
+    return !!(r && r.__v_isRef === true)
+} 
+
+```
+
+而Ref Impl中就是做主要的转换Reactive或保留value的逻辑
+
+```typescript
+class RefImpl<T> {
+
+    private _value: T
+
+    public dep?:Dep = undefined
+
+    public readonly __v_isRef = true
+
+    constructor(value:T,public readonly __v_isShallow: boolean){
+        //__v_isShallow：判断是否是一个复杂对象，如果是一个复杂对象就直接转为Reactive对象即可
+        this._value = __v_isShallow ? value : toReactive(value)
+    }
+}
+
+```
+
+toReactive的实现就比较简单了，就是判断value是不是一个复杂的对象类型
+
+```typescript
+/**
+ * 将传入的数据转为Reactive数据，如果不是复杂对象类型则直接返回value
+ * @param value 
+ * @returns 
+ */
+export const toReactive = <T extends unknown>(value : T) => {
+    return isObject(value) ? reactive(value as object) : value;
+}
+
+/**
+ * 判断数据是否数据一个object类型
+ * @param val 
+ * @returns 
+ */
+export const isObject = (val:unknown) =>  {
+    return val != null && typeof val === 'object'
+}
+```
+
+完成了数据转换之后，我们就可以完成set 和 get方法的设置的，跟reactive一样的，就是get做依赖收集，set做依赖触发，关注这段代码，就能解密我们为什么使用ref的时候需要xxx.value 或者 xxx.value = yyy这样的方式获取值或者赋值了，原因就在于ref为get/set设了value的方法名了
+
+```typescript
+   get value(){
+        //收集依赖
+        trackRefValue(this)
+        return this._value
+    }
+
+    //依赖触发不同的是就是通过判断新旧值是否有改变来决定是否进行触发依赖
+    set value(newVal){
+        if(hasChanged(newVal,this._rawValue)){
+            this._rawValue =  newVal
+            this._value = toReactive(newVal)
+            triggerRefValue(this)
+        }
+    }
+```
+
+依赖收集方法，依赖收集跟reactive也是一样的
+
+```typescript
+/**
+ * 收集依赖，根据activeEffect来判断该依赖是否被激活，是的话就直接收集起来
+ * @param ref 
+ */
+export function trackRefValue(ref:RefImpl<unknown>){
+    if(activeEffect){
+        trackEffects(ref.dep || (ref.dep = createDep()))
+    }
+}
+
+
+```
+
+而触发依赖的方法其实跟reactive也是大差不差，就是取dep中的依赖循环触发而已
+
+```typescript
+export function triggerRefValue(ref:any){
+    if(ref.dep) {
+        triggerEffects(ref.dep)
+    }
+}
+```
+
+其实代码看下来，核心思想在于简单类型被封装成了一个RefImpl的复杂对象类型了，但是并没有创建Proxy方法进行get 和set 监听，这也是简单类型和复杂的对象数据类型的不同点。
+
+#### 测试代码
+
+```javascript
+    const { reactive, effect, ref } = Vue
+
+    const obj = ref('zs')
+
+    effect(() => {
+        document.getElementById('app1').innerText = obj.value
+    })
+
+    setTimeout(() => {
+        obj.value = 'ls'
+    },2000)
+```
+
+### Computed
+
+Computed的作用是创建一个只读的属性，它能够接收一个getter函数，即需要有一份明确的返回值
+
+所以我们明确了Computed是需要接收一个getter函数的，也就是说我们需要去触发他，这不就是触发依赖嘛
+
+所以说Computed在初始化的时候就要进行依赖触发了，那问题是Computed是怎么根据属性变化来发生依赖触发呢？
+
+我们带着问题一起先来动手做一个mini computed吧
+
+#### Computed 方法
+
+首先我们先创建一个computed方法，其实这就很像Ref的做法了，就是采用Impl类来处理整个依赖收集和依赖触发过程
+
+```typescript
+export function computed(getterOrOptions:any){
+    let getter
+    //判断是否是函数
+    const onlyGetter = isFunction(getterOrOptions)
+    if(onlyGetter){
+        getter = getterOrOptions
+    }
+    //Computed核心类
+    const cRef = new ComputedRefImpl(getter)
+    return cRef
+}
+```
+
+isFunction方法的实现也是非常简单的
+
+```typescript
+/**
+ * 判断传入的值是否属于函数类型
+ * @param val 
+ * @returns 
+ */
+export const isFunction = (val:unknown) :val is Function => typeof val === 'function'
+```
+
+#### ComputedRefImpl 类实现
+
+ComputedRefImpl 中多出了一个\_dirty 的脏标识，这个值的作用很大，决定着是否触发依赖，所以如果出发了Computed函数时，就会将\_dirty 改为true，方便后面的get函数用于根据\_dirty 来判断是否重新触发依赖。
+
+而我们可以从这段代码发现，这里只有get函数，没有set函数，这么设计就是为了
+
+```typescript
+export class ComputedRefImpl<T>{
+    //依赖集合
+    public dep? : Dep = undefined
+    //值
+    private _value !: T 
+    //副作用触发，用于触发依赖
+    public readonly effect : ReactiveEffect<T>
+    //这是打上了Ref标识的
+    public readonly __v_isRef = true
+
+
+    //脏数据，用于判断该数据是否发生了改变，决定着是否需要重新触发依赖
+    public _dirty = false
+    
+    constructor(getter: any){
+        this.effect = new ReactiveEffect(getter,() => {
+            if(!this._dirty){
+                this._dirty = true
+                triggerRefValue(this)
+            }
+        })
+        //初始化值，需要先触发一次依赖
+        this._value = this.effect.run()
+        //用于收集依赖
+        this.effect.computed = this
+    }
+
+
+    get value() {
+        //依赖收集
+        trackRefValue(this)
+        //如果数据脏了，那才需要执行依赖收集从而进行依赖触发
+        if(this._dirty){
+            this._dirty = false
+            this._value = this.effect.run()
+        }
+        return this._value
+    }
+
+
+}
+```
+
+### Watch
+
+#### 使用
+
+从vue提供的watch方法来看，他一共是接收三个参数
+
+1. 监听的响应式对象
+2. 回调函数，即监听对象发生变化所触发的回调函数
+3. 配置对象
+   1. immediate : watch 初始化完成后被触发一次
+   2. deep：深度监听
+
+#### Scheduler解析
+
+不管是watch还是computed scheduler这个调度器是他们执行依赖的核心
+
+vue中提供的scheduler具备两个参数&#x20;
+
+1. lazy 控制是否懒执行
+2. scheduler 调度器&#x20;
+   1. 控制执行顺序 →通过开启异步执行微任务来调整执行顺序
+   2. 控制执行规则
+
+#### Secheduler中的懒加载
+
+控制是否懒加载其实非常好实现，无非是提供一个lazy参数外部填写，在effect中根据lazy来判断是否马上执行方法
+
+```typescript
+export interface ReactiveEffectOptions{
+    lazy?: boolean
+    scheduler?: EffectScheduler
+}
+
+export function effect<T = any> (fn : () => T,options?: ReactiveEffectOptions){
+    const _effect = new ReactiveEffect(fn)
+    //判断懒执行
+    if(!options || !options.lazy){
+        _effect.run()
+    }
+}
+
+```
+
+#### Scheduler 控制执行顺序的核心 queuePreFlushCb
+
+queuePreFlushCb是控制Scheduler的核心，接下来就一起来看看他是如何控制执行顺序的，以下就是具体的核心代码
+
+```typescript
+let isFlushPending = false
+
+const pendingPreFlushCbs: Function[] = []
+
+const resolvePromise = Promise.resolve() as Promise<any>
+
+let currentFlushPromise : Promise<void> | null = null
+
+export function queuePreFlushCb(cb: Function) {
+    queueCb(cb, pendingPreFlushCbs)
+}
+
+const queueCb = (cb: Function, pendingPreFlushCbs: Function[]) => {
+
+    pendingPreFlushCbs.push(cb)
+
+    queueFlush()
+
+}
+
+const queueFlush = () => {
+    if (!isFlushPending) {
+        isFlushPending = true
+        //开启异步微任务的执行
+        currentFlushPromise = resolvePromise.then(flushJobs)
+    }
+}
+
+const flushJobs = () => {
+    //标志任务执行
+    isFlushPending = false
+    //开启任务的循环执行
+    flushPreFlushCbs()
+
+}
+
+/*
+ *@description: 循环执行列表中的函数
+ *@author: T
+ *@date: 2024-07-01 18:17:07
+*/
+export const flushPreFlushCbs = () => {
+
+    if(pendingPreFlushCbs.length){
+        //对函数列表去重
+        let activePreFlushCbs = [...new Set(pendingPreFlushCbs)]
+        pendingPreFlushCbs.length = 0
+        //循环执行
+        for(let i = 0; i < activePreFlushCbs.length ; i ++){
+            activePreFlushCbs[i]()
+        }
+    }
+}
+
+```
+
+可以发现的是，Scheduler是通过queuePreFlushCb来控制函数的执行顺序的，他会通过pendingPreFlushCbs来将要执行的函数收集好，然后在queueFlush 方法中通过开启异步任务执行的方式来执行pendingPreFlushCbs中的函数
+
+#### Watch监听器
+
+##### 1. 判断是否属性Reactive类型
+
+想要判断属性是否属于Reactive类型，我们的方法是在Reactive类型创建之后，为Reactive类型的对象添加上Reactive标识，那么我们先要找找看Reactive在哪里创建的呢，以往我们就写过，就在createReactiveObject中，我们接受一个对象并创建对应的Proxy对象，我们为其添加了\_\_v\_isReactive标识，标识该对象是一个Reactive类型的对象
+
+```typescript
++ //创建一个Reactive属性的标志
++ export const enum ReactiveFlags {
++     IS_REACTIVE = '__v_isReactive'
++ }
+
+
+function createReactiveObject(
+    target:Object,
+    baseHandlers: ProxyHandler<any>,
+    proxyMap: WeakMap<Object,any>
+){
+    //从缓存中获取对应的target
+    const existingProxy = proxyMap.get(target)
+    if(existingProxy){
+        //缓存中存在
+        return existingProxy
+    }
+    //不存在的话创建代理对象
+    const proxy = new Proxy(target,baseHandlers)
+    //创建了proxy后，为proxy添加一个Reactive类型标识
+    + proxy[ReactiveFlags.IS_REACTIVE] = true
+
+
+    //放置缓存
+    proxyMap.set(target,proxy)
+    return proxy
+}
+```
+
+#### 2. 实现watch 触发函数
+
+## &#x20;Vue的运行时渲染
+
+运行时函数简单地理解就是将Vue代码渲染到Html页面上，这里可以分为两个步骤
+
+1. 制成VNode&#x20;
+2. 将VNode挂载到指定位置
+
+### VNode
+
+不妨我们先来看看什么是VNode，VNode是用来干什么的？首先我们要先了解两块内容
+
+1. HTML DOM 节点树
+
+   以以下代码为例
+   ```html
+   <div>
+     <h1> hello h1 </h1>
+     <!-- 注释 -->
+     hello div
+   </div>
+   ```
+   这样的一段html代码所组成的结构是这样的，是一个树的结构，所以说这段是HTML DOM节点树
+
+   ![](image/image_gBi8HMhWZu.png)
+2. 虚拟DOM 树
+
+不过如果我们需要频繁地去做DOM操作的时候，更新都还好，毕竟树的查询效率是比较快的，但是如果是删除或者新增DOM的话，这就会引起树结构的重绘，这样带来的性能消耗的巨大的。所以不建议我们直接操作DOM元素，这也是Vue诞生的核心原因之一。
+
+为了让我们既能操作DOM元素，又不想频繁地去操作DOM元素，React提出了虚拟DOM的概念，记住这是一个概念，他需要有具体的实现。
+
+虚拟DOM节点理解起来其实也不难，他就是给真实DOM整出了一个备份然后用特定的数据结构来表示，既然是备份那就肯定要跟真实DOM保持一致啦。这样会带来什么好处呢？
+
+首先我们不再需要操作真实DOM了，提而代之的是操作虚拟DOM，而虚拟DOM可以提供批量更新的功能，比如说我可以屯一段时间内的更新操作来一次性做一个更新，这样真实DOM的重绘次数不就减少了吗
+
+第二则是虚拟DOM还可以跟真实DOM做对比，如果更新的内容跟原来的内容一致，那我可以选择不同步真实DOM嘛，这样又减少了不少不必要的操作了，又或者我可以取最后一次更新来进行对比
+
+当然虚拟DOM带来的好处是非常多的，更多的可以浏览一下Vue是如何看待并实现虚拟DOM的
+
+[https://cn.vuejs.org/guide/extras/rendering-mechanism.html#virtual-dom](https://cn.vuejs.org/guide/extras/rendering-mechanism.html#virtual-dom "https://cn.vuejs.org/guide/extras/rendering-mechanism.html#virtual-dom")
+
+![](image/image_76Jbx8ejd-.png)
+
+接下来我们直接上代码，还是这段代码示例
+
+```html
+<div>
+  <h1> hello h1 </h1>
+  <!-- 注释 -->
+  hello div
+</div>
+```
+
+如果我们需要转成虚拟节点可以怎么转呢？我们可以转成以下这样的对象形式
+
+```javascript
+const vnode = {
+  type: 'div',
+  children: [
+    {
+      type: 'h1',
+      children: 'hello h1'
+    },
+    {
+      type: COMMENT,
+      children: '注释'
+    },
+    'hello div'
+  ]
+}
+```
+
+那么在运行过程中，Vue会给提供一个渲染器render来将这段结构构建成真实的DOM节点树，这个过程我们可以管他叫做挂载（mount）
+
+当然如果说需要更新的时候，虚拟DOM会跟真实DOM进行对比，找到不同的地方进行节点更新，这个过程我们可以管他叫做更新或者协调
+
+### 挂载
+
+刚刚我们已经懂了，原来在浏览器中所有的Node会组成一棵树的结构，那么挂载其实就是我们将Node像挂祝福卡一样，找到指定位置给他挂到下面去就行了。
+
+那我们现在就来实现一下挂载的过程，其实就是一个照猫画虎的过程，我们从上面小节得知一个node节点的结构是这样的，那其实我们也可以弄一个一样的结果放到指定id的元素作为其children节点吧
+
+```javascript
+  {
+      type: 'h1',
+      children: 'hello h1'
+    }
+```
+
+```javascript
+    const VNode = {
+        type: 'div',
+        children: 'hello new node '
+    }
+
+
+    function render(oldVNode, newVNode, container) {
+        //触发新节点不存在 -> 挂载流程
+        if (!oldVNode) {
+            mount(newVNode, container)
+        }
+    }
+
+
+    function mount(newVNode, container) {
+        //创建一个指定类型的元素
+        const ele = document.createElement(newVNode.type)
+        ele.innerText = newVNode.children
+        //给元素添加到指定容器中 = 挂载
+        container.appendChild(ele)
+    }
+
+    render(null, VNode, document.getElementById('app'))
+
+```
+
+记住这个流程，其实Vue对挂载的处理也是围绕着这个流程的，虽然Vue做了不少的优化和多场景的考虑，但是核心流程都是这个的。
+
+### 更新
+
+而更新节点又是如何操作的呢？其实就是旧节点删了，将新节点重新添加
+
+```javascript
+
+    function render(oldVNode, newVNode, container) {
+        //触发新节点不存在 -> 挂载流程
+        if (!oldVNode) {
+            mount(newVNode, container)
+       + } else {
+       +     patch(oldVNode, newVNode, container)
+       + }
+    }
+
+  +  function unmount(container) {
+  +      //清空容器
+  +      container.innerHTML = ''
+  +  }
+
+
+  +  function patch(oldVNode, newVNode, container) {
+  +      //删除节点
+  +      unmount(container)
+  +      //重新添加节点
+  +      //创建一个指定类型的元素
+  +      const ele = document.createElement(newVNode.type)
+  +      ele.innerText = oldVNode.children
+  +     //给元素添加到指定容器中 = 挂载
+  +      container.appendChild(ele)
+  +  }
 ```

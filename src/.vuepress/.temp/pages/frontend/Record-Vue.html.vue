@@ -31,8 +31,6 @@
 <li><a href="#%E9%85%8D%E7%BD%AE%E8%B7%AF%E5%BE%84%E6%98%A0%E5%B0%84">配置路径映射</a></li>
 </ul>
 </li>
-<li><a href="#%E6%8E%A2%E7%B4%A2%E6%BA%90%E7%A0%81">探索源码</a>
-<ul>
 <li><a href="#%E5%93%8D%E5%BA%94%E7%B3%BB%E7%BB%9F">响应系统</a>
 <ul>
 <li><a href="#js%E7%9A%84%E7%A8%8B%E5%BA%8F%E6%80%A7">js的程序性</a></li>
@@ -42,8 +40,6 @@
 <ul>
 <li><a href="#proxy%E7%9A%84%E4%BD%BF%E7%94%A8">proxy的使用</a></li>
 <li><a href="#Reflect">Reflect</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li><a href="#%E5%88%9D%E5%85%A5reactivity%E6%A8%A1%E5%9D%97">初入reactivity模块</a>
@@ -66,8 +62,41 @@
 <li><a href="#%E5%8D%87%E7%BA%A7%E5%93%8D%E5%BA%94%E5%BC%8F%E6%A8%A1%E5%9D%97%E4%BB%A3%E7%A0%81">升级响应式模块代码</a>
 <ul>
 <li><a href="#%E6%B5%8B%E8%AF%95">测试</a></li>
+<li><a href="#reactivity%E7%9A%84%E5%BC%8A%E7%AB%AF">reactivity的弊端</a></li>
 </ul>
 </li>
+<li><a href="#Ref%E7%9A%84%E7%A9%BA%E9%99%8D">Ref的空降</a>
+<ul>
+<li><a href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81">测试代码</a></li>
+</ul>
+</li>
+<li><a href="#Computed">Computed</a>
+<ul>
+<li><a href="#Computed-%E6%96%B9%E6%B3%95">Computed 方法</a></li>
+<li><a href="#ComputedRefImpl-%E7%B1%BB%E5%AE%9E%E7%8E%B0">ComputedRefImpl 类实现</a></li>
+</ul>
+</li>
+<li><a href="#Watch">Watch</a>
+<ul>
+<li><a href="#%E4%BD%BF%E7%94%A8">使用</a></li>
+<li><a href="#Scheduler%E8%A7%A3%E6%9E%90">Scheduler解析</a></li>
+<li><a href="#Secheduler%E4%B8%AD%E7%9A%84%E6%87%92%E5%8A%A0%E8%BD%BD">Secheduler中的懒加载</a></li>
+<li><a href="#Scheduler-%E6%8E%A7%E5%88%B6%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F%E7%9A%84%E6%A0%B8%E5%BF%83-queuePreFlushCb">Scheduler 控制执行顺序的核心 queuePreFlushCb</a></li>
+<li><a href="#Watch%E7%9B%91%E5%90%AC%E5%99%A8">Watch监听器</a>
+<ul>
+<li><a href="#1-%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%B1%9E%E6%80%A7Reactive%E7%B1%BB%E5%9E%8B">1. 判断是否属性Reactive类型</a></li>
+</ul>
+</li>
+<li><a href="#2-%E5%AE%9E%E7%8E%B0watch-%E8%A7%A6%E5%8F%91%E5%87%BD%E6%95%B0">2. 实现watch 触发函数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#-Vue%E7%9A%84%E8%BF%90%E8%A1%8C%E6%97%B6%E6%B8%B2%E6%9F%93"> Vue的运行时渲染</a>
+<ul>
+<li><a href="#VNode">VNode</a></li>
+<li><a href="#%E6%8C%82%E8%BD%BD">挂载</a></li>
+<li><a href="#%E6%9B%B4%E6%96%B0">更新</a></li>
 </ul>
 </li>
 </ul>
@@ -149,19 +178,19 @@
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>基于服务运行html文件</p>
 <p>下载插件 Live Server，Live Server 是可以令动态或静态文件基于服务器访问的</p>
 <p>下载完成以后就可以在右键菜单栏处看到基于Live Server运行了</p>
-<figure><img src="@source/frontend/image/image_j3XkIQG68S.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_C0P_TQjQps.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>点击运行后，我们可以从服务器指定端口获取资源，就证明运行成功了</p>
-<figure><img src="@source/frontend/image/image_Z2O4A4myUL.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_YYxGh9ENIw.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>接下来我们就可以尝试做debug处理了</p>
 <h4 id="debug" tabindex="-1"><a class="header-anchor" href="#debug"><span>debug</span></a></h4>
 <p>浏览器是个debug的好工具，但是浏览器中的源码只有build后的代码，想要看到构建前的代码，我们需要开启vue的sourceMap，很简单，就是到package.json 处为构建代码添加-s属性即可</p>
 <div class="language-json line-numbers-mode" data-ext="json" data-title="json"><pre v-pre class="language-json"><code><span class="token property">"build"</span><span class="token operator">:</span> <span class="token string">"node scripts/build.js -s"</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>重新构建，我们就能发现文件多了.map</p>
-<figure><img src="@source/frontend/image/image_jo_ihClygb.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_-YY_Dx4oJr.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>打开浏览器的调试工具，到sources栏下， 就能看到vue的所有相关源码了</p>
-<figure><img src="@source/frontend/image/image_Q6oniw9Nak.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_wfQUt5CfjM.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>打上断点，刷新就能进行debug模式啦</p>
-<figure><img src="@source/frontend/image/image_G1_-zMWyAI.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_XEsZOLIEwv.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <h2 id="动手构建自己的vue框架" tabindex="-1"><a class="header-anchor" href="#动手构建自己的vue框架"><span>动手构建自己的Vue框架</span></a></h2>
 <p>模仿也是学习的一种方法，能够在自己尝试构建Vue框架的过程中带着问题去探索源码，我觉得这样子学源码既不枯燥还能帮助自己更加好地理解脉络</p>
 <h3 id="尝试跟着vue来搭建自己的包结构" tabindex="-1"><a class="header-anchor" href="#尝试跟着vue来搭建自己的包结构"><span>尝试跟着Vue来搭建自己的包结构</span></a></h3>
@@ -230,7 +259,7 @@
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>然后就可以尝试build一下了</p>
 <div class="language-bash line-numbers-mode" data-ext="sh" data-title="sh"><pre v-pre class="language-bash"><code><span class="token function">npm</span> run build
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>出现dist包就没有问题了</p>
-<figure><img src="@source/frontend/image/image_HMaC8VBlOg.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_KDnZAFCfhb.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <h3 id="配置路径映射" tabindex="-1"><a class="header-anchor" href="#配置路径映射"><span>配置路径映射</span></a></h3>
 <p>我们经常配置路径都需要去配置相对路径，即相对本文件的哪一层哪一层目录</p>
 <div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> isArray <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">"../../shared/index.ts"</span><span class="token punctuation">;</span>
@@ -251,8 +280,7 @@
 <p>接下来我们就可以替换成</p>
 <div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">import</span> <span class="token punctuation">{</span>isArray<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@vue/shared'</span><span class="token punctuation">;</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>有了这个路径映射我们就可以更好地对模块内容进行导入了</p>
-<h2 id="探索源码" tabindex="-1"><a class="header-anchor" href="#探索源码"><span>探索源码</span></a></h2>
-<h3 id="响应系统" tabindex="-1"><a class="header-anchor" href="#响应系统"><span>响应系统</span></a></h3>
+<h2 id="响应系统" tabindex="-1"><a class="header-anchor" href="#响应系统"><span>响应系统</span></a></h2>
 <h4 id="js的程序性" tabindex="-1"><a class="header-anchor" href="#js的程序性"><span>js的程序性</span></a></h4>
 <div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code> <span class="token keyword">let</span> product <span class="token operator">=</span> <span class="token punctuation">{</span>
         <span class="token literal-property property">price</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
@@ -347,7 +375,7 @@
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这段代码其实就是通过监听product的quantity属性是否发生了改变，即是否触发了setter行为，如果触发了就重新进行计算，通过这样的方式确实让程序智能起来了</p>
-<figure><img src="@source/frontend/image/image_mxKon6nRu3.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_dfro4I2hZ2.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>vue2 也是采用了这种方式来感知属性的变化的，但是vue3却放弃了使用这种方式</p>
 <p>这是为什么呢？</p>
 <h4 id="vue2-响应式采用object-defineproperty在设计上的缺陷" tabindex="-1"><a class="header-anchor" href="#vue2-响应式采用object-defineproperty在设计上的缺陷"><span>vue2 响应式采用Object.defineProperty在设计上的缺陷</span></a></h4>
@@ -431,7 +459,7 @@
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">)</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这样，this的指向会发生变动，再看看，GETTER就会如期的出现三次了</p>
-<figure><img src="@source/frontend/image/image_o3PcKmNr00.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_Zb6RxGF949.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>所以Reflect和Proxy其实是一对最佳搭档，Reflect可以帮助Proxy修改this的指向</p>
 <h3 id="初入reactivity模块" tabindex="-1"><a class="header-anchor" href="#初入reactivity模块"><span>初入reactivity模块</span></a></h3>
 <h4 id="阅读源码" tabindex="-1"><a class="header-anchor" href="#阅读源码"><span>阅读源码</span></a></h4>
@@ -471,10 +499,10 @@ export function <span class="token function">reactive</span><span class="token p
     wm2<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>obj<span class="token punctuation">,</span> <span class="token string">"aaa2"</span><span class="token punctuation">)</span>
     obj <span class="token operator">=</span> <span class="token keyword">null</span>
 
-</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><figure><img src="@source/frontend/image/image_8GFNK7vaju.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><figure><img src="@source/frontend/image/image_GCY5N9JyPS.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>如果此时将key置空，即obj = null,可看到结果一个wm1已为null，而wm2 是仍存在结果的，所以弱引用的WeakMap是不影响垃圾回收的，也更加适用于数据需要不断发生变动的reactivity模块</p>
-<figure><img src="@source/frontend/image/image_r6G_OBy68g.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
-<figure><img src="@source/frontend/image/image_qDdJtQhAln.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_u3bzOJ1-ie.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<figure><img src="@source/frontend/image/image_CVBJ2PBNqG.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>所以初代方法应该是这样子，主要逻辑是设置一个代理缓存，然后从缓存中查询看有没有存有target对象的代理，有就从缓存中取，否则就创建一个target代理</p>
 <div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code><span class="token comment">// 创建代理对象的核心方法</span>
 <span class="token keyword">function</span> <span class="token function">createReactiveObject</span><span class="token punctuation">(</span>
@@ -829,6 +857,433 @@ export function <span class="token function">reactive</span><span class="token p
 </span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span>
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span>
-</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div></div></template>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="reactivity的弊端" tabindex="-1"><a class="header-anchor" href="#reactivity的弊端"><span>reactivity的弊端</span></a></h4>
+<ol>
+<li>无法对一个非对象形式的变量具备响应性，因为new Proxy 是需要接收一个对象的，而如果我们传入的不是对象，那就会报错了</li>
+<li>无法对解构出来的属性具备响应性</li>
+</ol>
+<h3 id="ref的空降" tabindex="-1"><a class="header-anchor" href="#ref的空降"><span>Ref的空降</span></a></h3>
+<p>Ref就是为了解决Reactive无法解决的基础类型数据，但是Reactive仍然是可以使用的，即如果判断数据是复杂类型的数据，仍然会调用Reactive的</p>
+<p>那么Ref又是怎么对数据进行处理的呢？</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">ref</span><span class="token punctuation">(</span>value<span class="token operator">?</span><span class="token operator">:</span><span class="token builtin">unknown</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span>  <span class="token function">createRef</span><span class="token punctuation">(</span>value<span class="token punctuation">,</span><span class="token boolean">false</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>首先会有一个createRef方法构建Ref数据，这里首先会判断数据是否是一个Ref数据，是否是Ref数据得从RefImpl这个Ref实现类中的_val_isRef属性进行判断的</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+ * 构建Ref响应式数据
+ * @param rawValue 
+ * @param shallow 
+ * @returns 
+ */</span>
+<span class="token keyword">function</span> <span class="token function">createRef</span><span class="token punctuation">(</span>rawValue<span class="token operator">:</span><span class="token builtin">unknown</span> <span class="token punctuation">,</span> shallow<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">isRef</span><span class="token punctuation">(</span>rawValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> rawValue
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">RefImpl</span><span class="token punctuation">(</span>rawValue<span class="token punctuation">,</span>shallow<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token comment">/**
+ * 
+ * 判断是否是Ref类型数据
+ * 
+ */</span>
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">isRef</span><span class="token punctuation">(</span>r<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span>r <span class="token keyword">is</span> Ref<span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token operator">!</span><span class="token operator">!</span><span class="token punctuation">(</span>r <span class="token operator">&amp;&amp;</span> r<span class="token punctuation">.</span>__v_isRef <span class="token operator">===</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span> 
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>而Ref Impl中就是做主要的转换Reactive或保留value的逻辑</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">class</span> <span class="token class-name">RefImpl<span class="token operator">&lt;</span><span class="token constant">T</span><span class="token operator">></span></span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">private</span> _value<span class="token operator">:</span> <span class="token constant">T</span>
+
+    <span class="token keyword">public</span> dep<span class="token operator">?</span><span class="token operator">:</span>Dep <span class="token operator">=</span> <span class="token keyword">undefined</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">readonly</span> __v_isRef <span class="token operator">=</span> <span class="token boolean">true</span>
+
+    <span class="token function">constructor</span><span class="token punctuation">(</span>value<span class="token operator">:</span><span class="token constant">T</span><span class="token punctuation">,</span><span class="token keyword">public</span> <span class="token keyword">readonly</span> __v_isShallow<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//__v_isShallow：判断是否是一个复杂对象，如果是一个复杂对象就直接转为Reactive对象即可</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>_value <span class="token operator">=</span> __v_isShallow <span class="token operator">?</span> value <span class="token operator">:</span> <span class="token function">toReactive</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>toReactive的实现就比较简单了，就是判断value是不是一个复杂的对象类型</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+ * 将传入的数据转为Reactive数据，如果不是复杂对象类型则直接返回value
+ * @param value 
+ * @returns 
+ */</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> toReactive <span class="token operator">=</span> <span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token keyword">extends</span> <span class="token class-name"><span class="token builtin">unknown</span></span><span class="token operator">></span><span class="token punctuation">(</span>value <span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">isObject</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token function">reactive</span><span class="token punctuation">(</span>value <span class="token keyword">as</span> object<span class="token punctuation">)</span> <span class="token operator">:</span> value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">/**
+ * 判断数据是否数据一个object类型
+ * @param val 
+ * @returns 
+ */</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> <span class="token function-variable function">isObject</span> <span class="token operator">=</span> <span class="token punctuation">(</span>val<span class="token operator">:</span><span class="token builtin">unknown</span><span class="token punctuation">)</span> <span class="token operator">=></span>  <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> val <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token keyword">typeof</span> val <span class="token operator">===</span> <span class="token string">'object'</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>完成了数据转换之后，我们就可以完成set 和 get方法的设置的，跟reactive一样的，就是get做依赖收集，set做依赖触发，关注这段代码，就能解密我们为什么使用ref的时候需要xxx.value 或者 xxx.value = yyy这样的方式获取值或者赋值了，原因就在于ref为get/set设了value的方法名了</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code>   <span class="token keyword">get</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//收集依赖</span>
+        <span class="token function">trackRefValue</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>_value
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">//依赖触发不同的是就是通过判断新旧值是否有改变来决定是否进行触发依赖</span>
+    <span class="token keyword">set</span> <span class="token function">value</span><span class="token punctuation">(</span>newVal<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">hasChanged</span><span class="token punctuation">(</span>newVal<span class="token punctuation">,</span><span class="token keyword">this</span><span class="token punctuation">.</span>_rawValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>_rawValue <span class="token operator">=</span>  newVal
+            <span class="token keyword">this</span><span class="token punctuation">.</span>_value <span class="token operator">=</span> <span class="token function">toReactive</span><span class="token punctuation">(</span>newVal<span class="token punctuation">)</span>
+            <span class="token function">triggerRefValue</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>依赖收集方法，依赖收集跟reactive也是一样的</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+ * 收集依赖，根据activeEffect来判断该依赖是否被激活，是的话就直接收集起来
+ * @param ref 
+ */</span>
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">trackRefValue</span><span class="token punctuation">(</span>ref<span class="token operator">:</span>RefImpl<span class="token operator">&lt;</span><span class="token builtin">unknown</span><span class="token operator">></span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>activeEffect<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">trackEffects</span><span class="token punctuation">(</span>ref<span class="token punctuation">.</span>dep <span class="token operator">||</span> <span class="token punctuation">(</span>ref<span class="token punctuation">.</span>dep <span class="token operator">=</span> <span class="token function">createDep</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>而触发依赖的方法其实跟reactive也是大差不差，就是取dep中的依赖循环触发而已</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">triggerRefValue</span><span class="token punctuation">(</span>ref<span class="token operator">:</span><span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>ref<span class="token punctuation">.</span>dep<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">triggerEffects</span><span class="token punctuation">(</span>ref<span class="token punctuation">.</span>dep<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>其实代码看下来，核心思想在于简单类型被封装成了一个RefImpl的复杂对象类型了，但是并没有创建Proxy方法进行get 和set 监听，这也是简单类型和复杂的对象数据类型的不同点。</p>
+<h4 id="测试代码" tabindex="-1"><a class="header-anchor" href="#测试代码"><span>测试代码</span></a></h4>
+<div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code>    <span class="token keyword">const</span> <span class="token punctuation">{</span> reactive<span class="token punctuation">,</span> effect<span class="token punctuation">,</span> ref <span class="token punctuation">}</span> <span class="token operator">=</span> Vue
+
+    <span class="token keyword">const</span> obj <span class="token operator">=</span> <span class="token function">ref</span><span class="token punctuation">(</span><span class="token string">'zs'</span><span class="token punctuation">)</span>
+
+    <span class="token function">effect</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'app1'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>innerText <span class="token operator">=</span> obj<span class="token punctuation">.</span>value
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    <span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        obj<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token string">'ls'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token number">2000</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="computed" tabindex="-1"><a class="header-anchor" href="#computed"><span>Computed</span></a></h3>
+<p>Computed的作用是创建一个只读的属性，它能够接收一个getter函数，即需要有一份明确的返回值</p>
+<p>所以我们明确了Computed是需要接收一个getter函数的，也就是说我们需要去触发他，这不就是触发依赖嘛</p>
+<p>所以说Computed在初始化的时候就要进行依赖触发了，那问题是Computed是怎么根据属性变化来发生依赖触发呢？</p>
+<p>我们带着问题一起先来动手做一个mini computed吧</p>
+<h4 id="computed-方法" tabindex="-1"><a class="header-anchor" href="#computed-方法"><span>Computed 方法</span></a></h4>
+<p>首先我们先创建一个computed方法，其实这就很像Ref的做法了，就是采用Impl类来处理整个依赖收集和依赖触发过程</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">computed</span><span class="token punctuation">(</span>getterOrOptions<span class="token operator">:</span><span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">let</span> getter
+    <span class="token comment">//判断是否是函数</span>
+    <span class="token keyword">const</span> onlyGetter <span class="token operator">=</span> <span class="token function">isFunction</span><span class="token punctuation">(</span>getterOrOptions<span class="token punctuation">)</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>onlyGetter<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        getter <span class="token operator">=</span> getterOrOptions
+    <span class="token punctuation">}</span>
+    <span class="token comment">//Computed核心类</span>
+    <span class="token keyword">const</span> cRef <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ComputedRefImpl</span><span class="token punctuation">(</span>getter<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> cRef
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>isFunction方法的实现也是非常简单的</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+ * 判断传入的值是否属于函数类型
+ * @param val 
+ * @returns 
+ */</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> isFunction <span class="token operator">=</span> <span class="token punctuation">(</span>val<span class="token operator">:</span><span class="token builtin">unknown</span><span class="token punctuation">)</span> <span class="token operator">:</span>val <span class="token keyword">is</span> <span class="token builtin">Function</span> <span class="token operator">=></span> <span class="token keyword">typeof</span> val <span class="token operator">===</span> <span class="token string">'function'</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="computedrefimpl-类实现" tabindex="-1"><a class="header-anchor" href="#computedrefimpl-类实现"><span>ComputedRefImpl 类实现</span></a></h4>
+<p>ComputedRefImpl 中多出了一个_dirty 的脏标识，这个值的作用很大，决定着是否触发依赖，所以如果出发了Computed函数时，就会将_dirty 改为true，方便后面的get函数用于根据_dirty 来判断是否重新触发依赖。</p>
+<p>而我们可以从这段代码发现，这里只有get函数，没有set函数，这么设计就是为了</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">ComputedRefImpl<span class="token operator">&lt;</span><span class="token constant">T</span><span class="token operator">></span></span><span class="token punctuation">{</span>
+    <span class="token comment">//依赖集合</span>
+    <span class="token keyword">public</span> dep<span class="token operator">?</span> <span class="token operator">:</span> Dep <span class="token operator">=</span> <span class="token keyword">undefined</span>
+    <span class="token comment">//值</span>
+    <span class="token keyword">private</span> _value <span class="token operator">!</span><span class="token operator">:</span> <span class="token constant">T</span> 
+    <span class="token comment">//副作用触发，用于触发依赖</span>
+    <span class="token keyword">public</span> <span class="token keyword">readonly</span> effect <span class="token operator">:</span> ReactiveEffect<span class="token operator">&lt;</span><span class="token constant">T</span><span class="token operator">></span>
+    <span class="token comment">//这是打上了Ref标识的</span>
+    <span class="token keyword">public</span> <span class="token keyword">readonly</span> __v_isRef <span class="token operator">=</span> <span class="token boolean">true</span>
+
+
+    <span class="token comment">//脏数据，用于判断该数据是否发生了改变，决定着是否需要重新触发依赖</span>
+    <span class="token keyword">public</span> _dirty <span class="token operator">=</span> <span class="token boolean">false</span>
+    
+    <span class="token function">constructor</span><span class="token punctuation">(</span>getter<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>effect <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ReactiveEffect</span><span class="token punctuation">(</span>getter<span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>_dirty<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token keyword">this</span><span class="token punctuation">.</span>_dirty <span class="token operator">=</span> <span class="token boolean">true</span>
+                <span class="token function">triggerRefValue</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token comment">//初始化值，需要先触发一次依赖</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>_value <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>effect<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment">//用于收集依赖</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>effect<span class="token punctuation">.</span>computed <span class="token operator">=</span> <span class="token keyword">this</span>
+    <span class="token punctuation">}</span>
+
+
+    <span class="token keyword">get</span> <span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//依赖收集</span>
+        <span class="token function">trackRefValue</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span>
+        <span class="token comment">//如果数据脏了，那才需要执行依赖收集从而进行依赖触发</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>_dirty<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>_dirty <span class="token operator">=</span> <span class="token boolean">false</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>_value <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>effect<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>_value
+    <span class="token punctuation">}</span>
+
+
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h3 id="watch" tabindex="-1"><a class="header-anchor" href="#watch"><span>Watch</span></a></h3>
+<h4 id="使用" tabindex="-1"><a class="header-anchor" href="#使用"><span>使用</span></a></h4>
+<p>从vue提供的watch方法来看，他一共是接收三个参数</p>
+<ol>
+<li>监听的响应式对象</li>
+<li>回调函数，即监听对象发生变化所触发的回调函数</li>
+<li>配置对象
+<ol>
+<li>immediate : watch 初始化完成后被触发一次</li>
+<li>deep：深度监听</li>
+</ol>
+</li>
+</ol>
+<h4 id="scheduler解析" tabindex="-1"><a class="header-anchor" href="#scheduler解析"><span>Scheduler解析</span></a></h4>
+<p>不管是watch还是computed scheduler这个调度器是他们执行依赖的核心</p>
+<p>vue中提供的scheduler具备两个参数 </p>
+<ol>
+<li>lazy 控制是否懒执行</li>
+<li>scheduler 调度器 
+<ol>
+<li>控制执行顺序 →通过开启异步执行微任务来调整执行顺序</li>
+<li>控制执行规则</li>
+</ol>
+</li>
+</ol>
+<h4 id="secheduler中的懒加载" tabindex="-1"><a class="header-anchor" href="#secheduler中的懒加载"><span>Secheduler中的懒加载</span></a></h4>
+<p>控制是否懒加载其实非常好实现，无非是提供一个lazy参数外部填写，在effect中根据lazy来判断是否马上执行方法</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">interface</span> <span class="token class-name">ReactiveEffectOptions</span><span class="token punctuation">{</span>
+    lazy<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">boolean</span>
+    scheduler<span class="token operator">?</span><span class="token operator">:</span> EffectScheduler
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token generic-function"><span class="token function">effect</span><span class="token generic class-name"><span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token operator">=</span> <span class="token builtin">any</span><span class="token operator">></span></span></span> <span class="token punctuation">(</span><span class="token function-variable function">fn</span> <span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token constant">T</span><span class="token punctuation">,</span>options<span class="token operator">?</span><span class="token operator">:</span> ReactiveEffectOptions<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">const</span> _effect <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ReactiveEffect</span><span class="token punctuation">(</span>fn<span class="token punctuation">)</span>
+    <span class="token comment">//判断懒执行</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>options <span class="token operator">||</span> <span class="token operator">!</span>options<span class="token punctuation">.</span>lazy<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        _effect<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="scheduler-控制执行顺序的核心-queuepreflushcb" tabindex="-1"><a class="header-anchor" href="#scheduler-控制执行顺序的核心-queuepreflushcb"><span>Scheduler 控制执行顺序的核心 queuePreFlushCb</span></a></h4>
+<p>queuePreFlushCb是控制Scheduler的核心，接下来就一起来看看他是如何控制执行顺序的，以下就是具体的核心代码</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">let</span> isFlushPending <span class="token operator">=</span> <span class="token boolean">false</span>
+
+<span class="token keyword">const</span> pendingPreFlushCbs<span class="token operator">:</span> <span class="token builtin">Function</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+<span class="token keyword">const</span> resolvePromise <span class="token operator">=</span> <span class="token builtin">Promise</span><span class="token punctuation">.</span><span class="token function">resolve</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token builtin">Promise</span><span class="token operator">&lt;</span><span class="token builtin">any</span><span class="token operator">></span>
+
+<span class="token keyword">let</span> currentFlushPromise <span class="token operator">:</span> <span class="token builtin">Promise</span><span class="token operator">&lt;</span><span class="token keyword">void</span><span class="token operator">></span> <span class="token operator">|</span> <span class="token keyword">null</span> <span class="token operator">=</span> <span class="token keyword">null</span>
+
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">queuePreFlushCb</span><span class="token punctuation">(</span>cb<span class="token operator">:</span> <span class="token builtin">Function</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">queueCb</span><span class="token punctuation">(</span>cb<span class="token punctuation">,</span> pendingPreFlushCbs<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">queueCb</span> <span class="token operator">=</span> <span class="token punctuation">(</span>cb<span class="token operator">:</span> <span class="token builtin">Function</span><span class="token punctuation">,</span> pendingPreFlushCbs<span class="token operator">:</span> <span class="token builtin">Function</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+
+    pendingPreFlushCbs<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>cb<span class="token punctuation">)</span>
+
+    <span class="token function">queueFlush</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">queueFlush</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>isFlushPending<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        isFlushPending <span class="token operator">=</span> <span class="token boolean">true</span>
+        <span class="token comment">//开启异步微任务的执行</span>
+        currentFlushPromise <span class="token operator">=</span> resolvePromise<span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>flushJobs<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">flushJobs</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token comment">//标志任务执行</span>
+    isFlushPending <span class="token operator">=</span> <span class="token boolean">false</span>
+    <span class="token comment">//开启任务的循环执行</span>
+    <span class="token function">flushPreFlushCbs</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token comment">/*
+ *@description: 循环执行列表中的函数
+ *@author: T
+ *@date: 2024-07-01 18:17:07
+*/</span>
+<span class="token keyword">export</span> <span class="token keyword">const</span> <span class="token function-variable function">flushPreFlushCbs</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span>pendingPreFlushCbs<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//对函数列表去重</span>
+        <span class="token keyword">let</span> activePreFlushCbs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">...</span><span class="token keyword">new</span> <span class="token class-name">Set</span><span class="token punctuation">(</span>pendingPreFlushCbs<span class="token punctuation">)</span><span class="token punctuation">]</span>
+        pendingPreFlushCbs<span class="token punctuation">.</span>length <span class="token operator">=</span> <span class="token number">0</span>
+        <span class="token comment">//循环执行</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> activePreFlushCbs<span class="token punctuation">.</span>length <span class="token punctuation">;</span> i <span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            activePreFlushCbs<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>可以发现的是，Scheduler是通过queuePreFlushCb来控制函数的执行顺序的，他会通过pendingPreFlushCbs来将要执行的函数收集好，然后在queueFlush 方法中通过开启异步任务执行的方式来执行pendingPreFlushCbs中的函数</p>
+<h4 id="watch监听器" tabindex="-1"><a class="header-anchor" href="#watch监听器"><span>Watch监听器</span></a></h4>
+<h5 id="_1-判断是否属性reactive类型" tabindex="-1"><a class="header-anchor" href="#_1-判断是否属性reactive类型"><span>1. 判断是否属性Reactive类型</span></a></h5>
+<p>想要判断属性是否属于Reactive类型，我们的方法是在Reactive类型创建之后，为Reactive类型的对象添加上Reactive标识，那么我们先要找找看Reactive在哪里创建的呢，以往我们就写过，就在createReactiveObject中，我们接受一个对象并创建对应的Proxy对象，我们为其添加了__v_isReactive标识，标识该对象是一个Reactive类型的对象</p>
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token operator">+</span> <span class="token comment">//创建一个Reactive属性的标志</span>
+<span class="token operator">+</span> <span class="token keyword">export</span> <span class="token keyword">const</span> <span class="token keyword">enum</span> ReactiveFlags <span class="token punctuation">{</span>
+<span class="token operator">+</span>     <span class="token constant">IS_REACTIVE</span> <span class="token operator">=</span> <span class="token string">'__v_isReactive'</span>
+<span class="token operator">+</span> <span class="token punctuation">}</span>
+
+
+<span class="token keyword">function</span> <span class="token function">createReactiveObject</span><span class="token punctuation">(</span>
+    target<span class="token operator">:</span>Object<span class="token punctuation">,</span>
+    baseHandlers<span class="token operator">:</span> ProxyHandler<span class="token operator">&lt;</span><span class="token builtin">any</span><span class="token operator">></span><span class="token punctuation">,</span>
+    proxyMap<span class="token operator">:</span> WeakMap<span class="token operator">&lt;</span>Object<span class="token punctuation">,</span><span class="token builtin">any</span><span class="token operator">></span>
+<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token comment">//从缓存中获取对应的target</span>
+    <span class="token keyword">const</span> existingProxy <span class="token operator">=</span> proxyMap<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>existingProxy<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment">//缓存中存在</span>
+        <span class="token keyword">return</span> existingProxy
+    <span class="token punctuation">}</span>
+    <span class="token comment">//不存在的话创建代理对象</span>
+    <span class="token keyword">const</span> proxy <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Proxy</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span>baseHandlers<span class="token punctuation">)</span>
+    <span class="token comment">//创建了proxy后，为proxy添加一个Reactive类型标识</span>
+    <span class="token operator">+</span> proxy<span class="token punctuation">[</span>ReactiveFlags<span class="token punctuation">.</span><span class="token constant">IS_REACTIVE</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">true</span>
+
+
+    <span class="token comment">//放置缓存</span>
+    proxyMap<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>target<span class="token punctuation">,</span>proxy<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> proxy
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="_2-实现watch-触发函数" tabindex="-1"><a class="header-anchor" href="#_2-实现watch-触发函数"><span>2. 实现watch 触发函数</span></a></h4>
+<h2 id="vue的运行时渲染" tabindex="-1"><a class="header-anchor" href="#vue的运行时渲染"><span> Vue的运行时渲染</span></a></h2>
+<p>运行时函数简单地理解就是将Vue代码渲染到Html页面上，这里可以分为两个步骤</p>
+<ol>
+<li>制成VNode </li>
+<li>将VNode挂载到指定位置</li>
+</ol>
+<h3 id="vnode" tabindex="-1"><a class="header-anchor" href="#vnode"><span>VNode</span></a></h3>
+<p>不妨我们先来看看什么是VNode，VNode是用来干什么的？首先我们要先了解两块内容</p>
+<ol>
+<li>
+<p>HTML DOM 节点树</p>
+<p>以以下代码为例</p>
+<div class="language-html line-numbers-mode" data-ext="html" data-title="html"><pre v-pre class="language-html"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span> hello h1 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
+  <span class="token comment">&lt;!-- 注释 --></span>
+  hello div
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这样的一段html代码所组成的结构是这样的，是一个树的结构，所以说这段是HTML DOM节点树</p>
+<figure><img src="@source/frontend/image/image_gBi8HMhWZu.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+</li>
+<li>
+<p>虚拟DOM 树</p>
+</li>
+</ol>
+<p>不过如果我们需要频繁地去做DOM操作的时候，更新都还好，毕竟树的查询效率是比较快的，但是如果是删除或者新增DOM的话，这就会引起树结构的重绘，这样带来的性能消耗的巨大的。所以不建议我们直接操作DOM元素，这也是Vue诞生的核心原因之一。</p>
+<p>为了让我们既能操作DOM元素，又不想频繁地去操作DOM元素，React提出了虚拟DOM的概念，记住这是一个概念，他需要有具体的实现。</p>
+<p>虚拟DOM节点理解起来其实也不难，他就是给真实DOM整出了一个备份然后用特定的数据结构来表示，既然是备份那就肯定要跟真实DOM保持一致啦。这样会带来什么好处呢？</p>
+<p>首先我们不再需要操作真实DOM了，提而代之的是操作虚拟DOM，而虚拟DOM可以提供批量更新的功能，比如说我可以屯一段时间内的更新操作来一次性做一个更新，这样真实DOM的重绘次数不就减少了吗</p>
+<p>第二则是虚拟DOM还可以跟真实DOM做对比，如果更新的内容跟原来的内容一致，那我可以选择不同步真实DOM嘛，这样又减少了不少不必要的操作了，又或者我可以取最后一次更新来进行对比</p>
+<p>当然虚拟DOM带来的好处是非常多的，更多的可以浏览一下Vue是如何看待并实现虚拟DOM的</p>
+<p><a href="https://cn.vuejs.org/guide/extras/rendering-mechanism.html#virtual-dom" title="https://cn.vuejs.org/guide/extras/rendering-mechanism.html#virtual-dom" target="_blank" rel="noopener noreferrer">https://cn.vuejs.org/guide/extras/rendering-mechanism.html#virtual-dom<ExternalLinkIcon/></a></p>
+<figure><img src="@source/frontend/image/image_76Jbx8ejd-.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
+<p>接下来我们直接上代码，还是这段代码示例</p>
+<div class="language-html line-numbers-mode" data-ext="html" data-title="html"><pre v-pre class="language-html"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span> hello h1 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
+  <span class="token comment">&lt;!-- 注释 --></span>
+  hello div
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>如果我们需要转成虚拟节点可以怎么转呢？我们可以转成以下这样的对象形式</p>
+<div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code><span class="token keyword">const</span> vnode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">children</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'h1'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">children</span><span class="token operator">:</span> <span class="token string">'hello h1'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token constant">COMMENT</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">children</span><span class="token operator">:</span> <span class="token string">'注释'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">'hello div'</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>那么在运行过程中，Vue会给提供一个渲染器render来将这段结构构建成真实的DOM节点树，这个过程我们可以管他叫做挂载（mount）</p>
+<p>当然如果说需要更新的时候，虚拟DOM会跟真实DOM进行对比，找到不同的地方进行节点更新，这个过程我们可以管他叫做更新或者协调</p>
+<h3 id="挂载" tabindex="-1"><a class="header-anchor" href="#挂载"><span>挂载</span></a></h3>
+<p>刚刚我们已经懂了，原来在浏览器中所有的Node会组成一棵树的结构，那么挂载其实就是我们将Node像挂祝福卡一样，找到指定位置给他挂到下面去就行了。</p>
+<p>那我们现在就来实现一下挂载的过程，其实就是一个照猫画虎的过程，我们从上面小节得知一个node节点的结构是这样的，那其实我们也可以弄一个一样的结果放到指定id的元素作为其children节点吧</p>
+<div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code>  <span class="token punctuation">{</span>
+      <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'h1'</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">children</span><span class="token operator">:</span> <span class="token string">'hello h1'</span>
+    <span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code>    <span class="token keyword">const</span> VNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">children</span><span class="token operator">:</span> <span class="token string">'hello new node '</span>
+    <span class="token punctuation">}</span>
+
+
+    <span class="token keyword">function</span> <span class="token function">render</span><span class="token punctuation">(</span><span class="token parameter">oldVNode<span class="token punctuation">,</span> newVNode<span class="token punctuation">,</span> container</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//触发新节点不存在 -> 挂载流程</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>oldVNode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">mount</span><span class="token punctuation">(</span>newVNode<span class="token punctuation">,</span> container<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+
+    <span class="token keyword">function</span> <span class="token function">mount</span><span class="token punctuation">(</span><span class="token parameter">newVNode<span class="token punctuation">,</span> container</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//创建一个指定类型的元素</span>
+        <span class="token keyword">const</span> ele <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span>newVNode<span class="token punctuation">.</span>type<span class="token punctuation">)</span>
+        ele<span class="token punctuation">.</span>innerText <span class="token operator">=</span> newVNode<span class="token punctuation">.</span>children
+        <span class="token comment">//给元素添加到指定容器中 = 挂载</span>
+        container<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>ele<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">render</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> VNode<span class="token punctuation">,</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'app'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>记住这个流程，其实Vue对挂载的处理也是围绕着这个流程的，虽然Vue做了不少的优化和多场景的考虑，但是核心流程都是这个的。</p>
+<h3 id="更新" tabindex="-1"><a class="header-anchor" href="#更新"><span>更新</span></a></h3>
+<p>而更新节点又是如何操作的呢？其实就是旧节点删了，将新节点重新添加</p>
+<div class="language-javascript line-numbers-mode" data-ext="js" data-title="js"><pre v-pre class="language-javascript"><code>
+    <span class="token keyword">function</span> <span class="token function">render</span><span class="token punctuation">(</span><span class="token parameter">oldVNode<span class="token punctuation">,</span> newVNode<span class="token punctuation">,</span> container</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">//触发新节点不存在 -> 挂载流程</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>oldVNode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">mount</span><span class="token punctuation">(</span>newVNode<span class="token punctuation">,</span> container<span class="token punctuation">)</span>
+       <span class="token operator">+</span> <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+       <span class="token operator">+</span>     <span class="token function">patch</span><span class="token punctuation">(</span>oldVNode<span class="token punctuation">,</span> newVNode<span class="token punctuation">,</span> container<span class="token punctuation">)</span>
+       <span class="token operator">+</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+  <span class="token operator">+</span>  <span class="token keyword">function</span> <span class="token function">unmount</span><span class="token punctuation">(</span><span class="token parameter">container</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">+</span>      <span class="token comment">//清空容器</span>
+  <span class="token operator">+</span>      container<span class="token punctuation">.</span>innerHTML <span class="token operator">=</span> <span class="token string">''</span>
+  <span class="token operator">+</span>  <span class="token punctuation">}</span>
+
+
+  <span class="token operator">+</span>  <span class="token keyword">function</span> <span class="token function">patch</span><span class="token punctuation">(</span><span class="token parameter">oldVNode<span class="token punctuation">,</span> newVNode<span class="token punctuation">,</span> container</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token operator">+</span>      <span class="token comment">//删除节点</span>
+  <span class="token operator">+</span>      <span class="token function">unmount</span><span class="token punctuation">(</span>container<span class="token punctuation">)</span>
+  <span class="token operator">+</span>      <span class="token comment">//重新添加节点</span>
+  <span class="token operator">+</span>      <span class="token comment">//创建一个指定类型的元素</span>
+  <span class="token operator">+</span>      <span class="token keyword">const</span> ele <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span>newVNode<span class="token punctuation">.</span>type<span class="token punctuation">)</span>
+  <span class="token operator">+</span>      ele<span class="token punctuation">.</span>innerText <span class="token operator">=</span> oldVNode<span class="token punctuation">.</span>children
+  <span class="token operator">+</span>     <span class="token comment">//给元素添加到指定容器中 = 挂载</span>
+  <span class="token operator">+</span>      container<span class="token punctuation">.</span><span class="token function">appendChild</span><span class="token punctuation">(</span>ele<span class="token punctuation">)</span>
+  <span class="token operator">+</span>  <span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div></div></template>
 
 

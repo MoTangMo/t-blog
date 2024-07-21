@@ -1,3 +1,16 @@
+---
+title: 前端开发小技巧 
+icon: code
+cover: /assets/images/cover3.jpg
+date: 2024-07-21
+star: true
+sticky: true
+category:
+  - tool
+tag:
+  - 效率
+  - 前端
+---
 # 前端开发小技巧
 
 ## 目录

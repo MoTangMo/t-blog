@@ -1773,3 +1773,643 @@ prepareStatement()是如何对参数进行配置的呢？
 prepareStatement方法首先获取JDBC中的Connection对象，然后调用StatementHandler对象的prepare()方法创建Statement对象，接着调用StatementHandler对象的parameterize()方法（parameterize()方法中会使用ParameterHandler为Statement对象设置参数）。
 
 #### StatementHandler实现细节
+
+MyBatis的StatementHandler接口有几个不同的实现类，分别为SimpleStatementHandler、PreparedStatementHandler和CallableStatementHandler。MyBatis默认情况下会使用PreparedStatementHandler与数据库交互。既然如此，那就着重探讨一下PreparedStatementHandler是如何进行数据库访问的。从以上的doQuery方法来看，查询最终会执行handler的query方法，即PreparedStatementHandler的query方法。
+
+在这里会首先调用PreparedStatement对象的execute()方法执行SQL语句，然后调用ResultSetHandler的handleResultSets()方法处理结果集。ResultSetHandler在PreparedStatement的父类BaseStatementHandler中有定义
+
+```java
+  @Override
+  public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
+    PreparedStatement ps = (PreparedStatement) statement;
+    ps.execute();
+    return resultSetHandler.handleResultSets(ps);
+  }
+```
+
+而ResultSetHandler只有一个默认的实现，即DefaultResultSetHandler类。
+
+```java
+  //
+  // HANDLE RESULT SETS
+  //
+  @Override
+  public List<Object> handleResultSets(Statement stmt) throws SQLException {
+    ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
+
+    final List<Object> multipleResults = new ArrayList<>();
+
+    int resultSetCount = 0;
+    ResultSetWrapper rsw = getFirstResultSet(stmt);
+
+    List<ResultMap> resultMaps = mappedStatement.getResultMaps();
+    int resultMapCount = resultMaps.size();
+    validateResultMapsCount(rsw, resultMapCount);
+    while (rsw != null && resultMapCount > resultSetCount) {
+      ResultMap resultMap = resultMaps.get(resultSetCount);
+      handleResultSet(rsw, resultMap, multipleResults, null);
+      rsw = getNextResultSet(stmt);
+      cleanUpAfterHandlingResultSet();
+      resultSetCount++;
+    }
+
+    String[] resultSets = mappedStatement.getResultSets();
+    if (resultSets != null) {
+      while (rsw != null && resultSetCount < resultSets.length) {
+        ResultMapping parentMapping = nextResultMaps.get(resultSets[resultSetCount]);
+        if (parentMapping != null) {
+          String nestedResultMapId = parentMapping.getNestedResultMapId();
+          ResultMap resultMap = configuration.getResultMap(nestedResultMapId);
+          handleResultSet(rsw, resultMap, null, parentMapping);
+        }
+        rsw = getNextResultSet(stmt);
+        cleanUpAfterHandlingResultSet();
+        resultSetCount++;
+      }
+    }
+    //如果只有一个结果集，则返回结果集中的元素，否则返回多个结果集
+    return collapseSingleResultList(multipleResults);
+  }
+
+```
+
+这里的具体逻辑如下：
+
+1. 首先从Statement对象中获取ResultSet对象，然后将ResultSet包装为ResultSetWrapper对象，通过ResultSetWrapper对象能够更方便地获取数据库字段名称以及字段对应的TypeHandler信息。
+2. 获取Mapper SQL配置中通过resultMap属性指定的ResultMap信息，一条SQL Mapper配置一般只对应一个ResultMap。
+3. 调用handleResultSet()方法对ResultSetWrapper对象进行处理，将结果集转换为Java实体对象，然后将生成的实体对象存放在multipleResults列表中。
+4. 调用collapseSingleResultList()方法对multipleResults进行处理，如果只有一个结果集，就返回结果集中的元素，否则返回多个结果集。
+
+自此，整个Mapper的执行过程也就结束了。
+
+## Mybatis中的缓存
+
+### 一级缓存
+
+MyBatis的缓存分为一级缓存和二级缓存，一级缓存默认是开启的，而且不能关闭。至于一级缓存为什么不能关闭，MyBatis核心开发人员做出了解释：MyBatis的一些关键特性（例如通过\<association>和\<collection>建立级联映射、避免循环引用（circular references）、加速重复嵌套查询等）都是基于MyBatis一级缓存实现的，而且MyBatis结果集映射相关代码重度依赖CacheKey，所以目前MyBatis不支持关闭一级缓存。
+
+MyBatis提供了一个配置参数localCacheScope，用于控制一级缓存的级别
+
+1. SESSION
+2. STATEMENT
+
+当指定localCacheScope参数值为SESSION时，缓存对整个SqlSession有效，只有执行DML语句（更新语句）时，缓存才会被清除。当localCacheScope值为STATEMENT时，缓存仅对当前执行的语句有效，当语句执行完毕后，缓存就会被清空。
+
+### 二级缓存
+
+1. 在MyBatis主配置文件中指定cacheEnabled属性值为true。
+2. 在MyBatis Mapper配置文件中，配置缓存策略、缓存刷新频率、缓存的容量等属性
+3. 在配置Mapper时，通过useCache属性指定Mapper执行时是否使用缓存。另外，还可以通过flushCache属性指定Mapper执行后是否刷新缓存
+
+通过上面的配置，MyBatis的二级缓存就可以生效了。执行查询操作时，查询结果会缓存到二级缓存中，执行更新操作后，二级缓存会被清空
+
+### Mybatis缓存的实现
+
+MyBatis的缓存基于JVM堆内存实现，即所有的缓存数据都存放在Java对象中，并且为缓存的操作行为定义了接口。
+
+```java
+public interface Cache {
+
+  /**
+   * @return The identifier of this cache
+   */
+  String getId();
+
+  /**
+   * @param key
+   *          Can be any object but usually it is a {@link CacheKey}
+   * @param value
+   *          The result of a select.
+   */
+  void putObject(Object key, Object value);
+
+  /**
+   * @param key
+   *          The key
+   *
+   * @return The object stored in the cache.
+   */
+  Object getObject(Object key);
+
+  /**
+   * As of 3.3.0 this method is only called during a rollback for any previous value that was missing in the cache. This
+   * lets any blocking cache to release the lock that may have previously put on the key. A blocking cache puts a lock
+   * when a value is null and releases it when the value is back again. This way other threads will wait for the value
+   * to be available instead of hitting the database.
+   *
+   * @param key
+   *          The key
+   *
+   * @return Not used
+   */
+  Object removeObject(Object key);
+
+  /**
+   * Clears this cache instance.
+   */
+  void clear();
+
+  /**
+   * Optional. This method is not called by the core.
+   *
+   * @return The number of elements stored in the cache (not its capacity).
+   */
+  int getSize();
+
+  /**
+   * Optional. As of 3.2.6 this method is no longer called by the core.
+   * <p>
+   * Any locking needed by the cache must be provided internally by the cache provider.
+   *
+   * @return A ReadWriteLock
+   */
+  default ReadWriteLock getReadWriteLock() {
+    return null;
+  }
+
+}
+
+```
+
+MyBatis中的缓存类采用装饰器模式设计，Cache接口有一个基本的实现类，即PerpetualCache类，该类的实现比较简单，通过一个HashMap实例存放缓存对象。需要注意的是，PerpetualCache类重写了Object类的equals()方法，当两个缓存对象的Id相同时，即认为缓存对象相同。
+
+```java
+public class PerpetualCache implements Cache {
+
+  private final String id;
+
+  private final Map<Object, Object> cache = new HashMap<>();
+
+  public PerpetualCache(String id) {
+    this.id = id;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public int getSize() {
+    return cache.size();
+  }
+
+  @Override
+  public void putObject(Object key, Object value) {
+    cache.put(key, value);
+  }
+
+  @Override
+  public Object getObject(Object key) {
+    return cache.get(key);
+  }
+
+  @Override
+  public Object removeObject(Object key) {
+    return cache.remove(key);
+  }
+
+  @Override
+  public void clear() {
+    cache.clear();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (getId() == null) {
+      throw new CacheException("Cache instances require an ID.");
+    }
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Cache)) {
+      return false;
+    }
+
+    Cache otherCache = (Cache) o;
+    return getId().equals(otherCache.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    if (getId() == null) {
+      throw new CacheException("Cache instances require an ID.");
+    }
+    return getId().hashCode();
+  }
+
+}
+
+```
+
+除了基础的PerpetualCache类之外，MyBatis中为了对PerpetualCache类的功能进行增强，提供了一些缓存的装饰器类
+
+BlockingCache：阻塞版本的缓存装饰器，能够保证同一时间只有一个线程到缓存中查找指定的Key对应的数据。
+
+FifoCache：先入先出缓存装饰器，FifoCache内部有一个维护具有长度限制的Key键值链表（LinkedList实例）和一个被装饰的缓存对象，Key值链表主要是维护Key的FIFO顺序，而缓存存储和获取则交给被装饰的缓存对象来完成。
+
+LoggingCache：为缓存增加日志输出功能，记录缓存的请求次数和命中次数，通过日志输出缓存命中率。
+
+LruCache：最近最少使用的缓存装饰器，当缓存容量满了之后，使用LRU算法淘汰最近最少使用的Key和Value。LruCache中通过重写LinkedHashMap类的removeEldestEntry()方法获取最近最少使用的Key值，将Key值保存在LruCache类的eldestKey属性中，然后在缓存中添加对象时，淘汰eldestKey对应的Value值。具体实现细节读者可参考LruCache类的源码。
+
+ScheduledCache：自动刷新缓存装饰器，当操作缓存对象时，如果当前时间与上次清空缓存的时间间隔大于指定的时间间隔，则清空缓存。清空缓存的动作由getObject()、putObject()、removeObject()等方法触发。
+
+SerializedCache：序列化缓存装饰器，向缓存中添加对象时，对添加的对象进行序列化处理，从缓存中取出对象时，进行反序列化处理。SoftCache：软引用缓存装饰器，SoftCache内部维护了一个缓存对象的强引用队列和软引用队列，缓存以软引用的方式添加到缓存中，并将软引用添加到队列中，获取缓存对象时，如果对象已经被回收，则移除Key，如果未被回收，则将对象添加到强引用队列中，避免被回收，如果强引用队列已经满了，则移除最早入队列的对象的引用。
+
+SynchronizedCache：线程安全缓存装饰器，SynchronizedCache的实现比较简单，为了保证线程安全，对操作缓存的方法使用synchronized关键字修饰。TransactionalCache：事务缓存装饰器，该缓存与其他缓存的不同之处在于，TransactionalCache增加了两个方法，即commit()和rollback()。当写入缓存时，只有调用commit()方法
+
+Cache的使用也是非常简单，我们可以使用MyBatis提供的缓存装饰器类对基础的PerpetualCache类的功能进行增强，使用不同的装饰器后，缓存对象则拥有对应的功能。
+
+```java
+    public void testCache() {
+        final int N = 10000;
+        Cache cache = new PerpetualCache("default");
+        cache = new TransactionalCache(cache);
+        for (int i = 0; i < N; i++) {
+            cache.putObject(i,i);
+            ((TransactionalCache)cache).commit();
+        }
+       log.info(String.valueOf(cache.getSize()));
+    }
+```
+
+### 一级缓存的实现原理
+
+MyBatis的一级缓存是SqlSession级别的缓存，SqlSession提供了面向用户的API，但是真正执行SQL操作的是Executor组件。Executor采用模板方法设计模式，BaseExecutor类用于处理一些通用的逻辑，其中一级缓存相关的逻辑就是在BaseExecutor类中完成的。
+
+那么接下来我们就动手进入到BaseExecutor中看看，一级缓存使用PerpetualCache实例实现，在BaseExecutor类中维护了两个PerpetualCache属性
+
+1. localCache属性用于缓存MyBatis查询结果
+2. localOutputParameterCache属性用于缓存存储过程调用结果
+
+```java
+public abstract class BaseExecutor implements Executor {
+
+  private static final Log log = LogFactory.getLog(BaseExecutor.class);
+
+  protected Transaction transaction;
+  protected Executor wrapper;
+
+  protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
+  protected PerpetualCache localCache;
+  protected PerpetualCache localOutputParameterCache;
+  protected Configuration configuration;
+
+...
+}
+```
+
+在初始化的时候，Mybatis就创建了key为LocalCache 和LocalOutputParameterCache的缓存了，如果两次查询操作CacheKey对象相同，就认为这两次查询执行的是相同的SQL语句
+
+```java
+  protected BaseExecutor(Configuration configuration, Transaction transaction) {
+    this.transaction = transaction;
+    this.deferredLoads = new ConcurrentLinkedQueue<>();
+    this.localCache = new PerpetualCache("LocalCache");
+    this.localOutputParameterCache = new PerpetualCache("LocalOutputParameterCache");
+    this.closed = false;
+    this.configuration = configuration;
+    this.wrapper = this;
+  }
+```
+
+在查询query方法时会使用到Cache
+
+```java
+  @Override
+  public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler)
+      throws SQLException {
+    BoundSql boundSql = ms.getBoundSql(parameter);
+    CacheKey key = createCacheKey(ms, parameter, rowBounds, boundSql);
+    return query(ms, parameter, rowBounds, resultHandler, key, boundSql);
+  }
+```
+
+createCacheKey是查询时采用的构建一级缓存的方法，而这段代码就是描述了在什么条件下我们认为两次查询的SQL的结果是一致 的
+
+1. Mapper的Id，即Mapper命名空间与\<select|update|insert|delete>标签的Id组成的全局限定名。
+2. 查询结果的偏移量及查询的条数。
+3. 具体的SQL语句及SQL语句中需要传递的所有参数。
+4. MyBatis主配置文件中，通过\<environment>标签配置的环境信息对应的Id属性值。
+
+执行两次查询时，只有上面的信息完全相同时，才会认为两次查询执行的是相同的SQL语句，缓存才会生效
+
+```java
+@Override
+  public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
+    if (closed) {
+      throw new ExecutorException("Executor was closed.");
+    }
+    CacheKey cacheKey = new CacheKey();
+    cacheKey.update(ms.getId());//Mapper ID
+    cacheKey.update(rowBounds.getOffset()); // 偏移量
+    cacheKey.update(rowBounds.getLimit()); // 条数
+    cacheKey.update(boundSql.getSql());// SQL语句
+    List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+    TypeHandlerRegistry typeHandlerRegistry = ms.getConfiguration().getTypeHandlerRegistry();
+    // mimic DefaultParameterHandler logic
+    MetaObject metaObject = null;
+    for (ParameterMapping parameterMapping : parameterMappings) {
+      if (parameterMapping.getMode() != ParameterMode.OUT) {
+        Object value;
+        String propertyName = parameterMapping.getProperty();
+        if (boundSql.hasAdditionalParameter(propertyName)) {
+          value = boundSql.getAdditionalParameter(propertyName);
+        } else if (parameterObject == null) {
+          value = null;
+        } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+          value = parameterObject;
+        } else {
+          if (metaObject == null) {
+            metaObject = configuration.newMetaObject(parameterObject);
+          }
+          value = metaObject.getValue(propertyName);
+        }
+        cacheKey.update(value);
+      }
+    }
+    if (configuration.getEnvironment() != null) {
+      // issue #176
+      cacheKey.update(configuration.getEnvironment().getId());
+    }
+    return cacheKey;
+  }
+```
+
+好，我们明白了什么情况下会使用cache了，那么cache是如何使用的呢，继续回头看query方法，他最终会返回query的重载方法，在BaseExecutor类的query()方法中，首先根据缓存Key从localCache属性中查找是否有缓存对象，如果查找不到，则调用queryFromDatabase()方法从数据库中获取数据，然后将数据写入localCache对象中。如果localCache中缓存了本次查询的结果，则直接从缓存中获取。需要注意的是，如果localCacheScope属性设置为STATEMENT，则每次查询操作完成后，都会调用clearLocalCache()方法清空缓存。
+
+```java
+  @SuppressWarnings("unchecked")
+  @Override
+  public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
+      CacheKey key, BoundSql boundSql) throws SQLException {
+    ErrorContext.instance().resource(ms.getResource()).activity("executing a query").object(ms.getId());
+    if (closed) {
+      throw new ExecutorException("Executor was closed.");
+    }
+    if (queryStack == 0 && ms.isFlushCacheRequired()) {
+      clearLocalCache();
+    }
+    List<E> list;
+    try {
+      queryStack++;
+      //从缓存中获取结果
+      list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
+      if (list != null) {
+        handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
+      } else {
+        //缓存中获取不到了，到数据库中获取
+        list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
+      }
+    } finally {
+      queryStack--;
+    }
+    if (queryStack == 0) {
+      for (DeferredLoad deferredLoad : deferredLoads) {
+        deferredLoad.load();
+      }
+      // issue #601
+      deferredLoads.clear();
+      if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
+        // issue #482
+        clearLocalCache();
+      }
+    }
+    return list;
+  }
+```
+
+除此之外，MyBatis会在执行完任意更新语句后清空缓存，我们可以看一下BaseExecutor类的update()方法，可以看到，MyBatis在调用doUpdate()方法完成更新操作之前，首先会调用clearLocalCache()方法清空缓存。
+
+```java
+  @Override
+  public int update(MappedStatement ms, Object parameter) throws SQLException {
+    ErrorContext.instance().resource(ms.getResource()).activity("executing an update").object(ms.getId());
+    if (closed) {
+      throw new ExecutorException("Executor was closed.");
+    }
+    clearLocalCache();
+    return doUpdate(ms, parameter);
+  }
+```
+
+在分布式环境下，务必将MyBatis的localCacheScope属性设置为STATEMENT，避免其他应用节点执行SQL更新语句后，本节点缓存得不到刷新而导致的数据一致性问题。
+
+### 二级缓存的实现原理
+
+MyBatis二级缓存在默认情况下是关闭的，因此需要通过设置cacheEnabled参数值为true来开启二级缓存。
+
+之前就有提到过，作为处理Mapper的Executor有着多种实现，其中CachingExecutor相对于其他几个实现来说，多增加了二级缓存的功能
+
+在Configuration类中有着一个非常典型的工厂方法模式的使用，就是Executor实例的生成，在Configuration中有一个newExecutor方法用于根据executorType来判断使用什么Executor的
+
+下面代码：如果cacheEnabled属性值为true（开启了二级缓存），则使用CachingExecutor对普通的Executor对象进行装饰，CachingExecutor在普通Executor的基础上增加了二级缓存功能
+
+```java
+  public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
+    executorType = executorType == null ? defaultExecutorType : executorType;
+    Executor executor;
+    if (ExecutorType.BATCH == executorType) {
+      executor = new BatchExecutor(this, transaction);
+    } else if (ExecutorType.REUSE == executorType) {
+      executor = new ReuseExecutor(this, transaction);
+    } else {
+      executor = new SimpleExecutor(this, transaction);
+    }
+    //  这里就是根据cacheEnabled来判断是否使用CachingExecutor，这里使用了装饰者模式增强功能
+    if (cacheEnabled) {
+      executor = new CachingExecutor(executor);
+    }
+    return (Executor) interceptorChain.pluginAll(executor);
+  }
+```
+
+好，我们目前清楚了CachingExecutor是如何诞生的，那么接下来我们就深入到CachingExecutor中，看看他是如何实现二级缓存的吧
+
+首先我们看看他维护了什么的资源，CachingExecutor是个增强类，所以肯定是先需要一个普通的Executor的，然后就是TransactionalCacheManager，TransactionalCacheManager用于管理所有的二级缓存对象。
+
+```java
+public class CachingExecutor implements Executor {
+
+  private final Executor delegate;
+  private final TransactionalCacheManager tcm = new TransactionalCacheManager();
+```
+
+不妨我们先探究一下TransactionalCacheManager是如何实现的
+
+以下代码通过一个HashMap对象维护所有二级缓存实例对应的TransactionalCache对象，在TransactionalCacheManager类的getObject()方法和putObject()方法中都会调用getTransactionalCache()方法获取二级缓存对象对应的TransactionalCache对象，然后对TransactionalCache对象进行操作。
+
+```java
+public class TransactionalCacheManager {
+
+  // 维护着二级缓存对应的TransactionalCache实例
+  private final Map<Cache, TransactionalCache> transactionalCaches = new HashMap<>();
+
+  public void clear(Cache cache) {
+    getTransactionalCache(cache).clear();
+  }
+
+  public Object getObject(Cache cache, CacheKey key) {
+    return getTransactionalCache(cache).getObject(key);
+  }
+
+  public void putObject(Cache cache, CacheKey key, Object value) {
+    getTransactionalCache(cache).putObject(key, value);
+  }
+
+  public void commit() {
+    for (TransactionalCache txCache : transactionalCaches.values()) {
+      txCache.commit();
+    }
+  }
+
+  public void rollback() {
+    for (TransactionalCache txCache : transactionalCaches.values()) {
+      txCache.rollback();
+    }
+  }
+
+  private TransactionalCache getTransactionalCache(Cache cache) {
+    // 获取二级缓存对应的TransactionalCache，如果获取不到则创建一个添加到啊Map中
+    return MapUtil.computeIfAbsent(transactionalCaches, cache, TransactionalCache::new);
+  }
+
+}
+
+```
+
+好了，对于管理缓存的对象我们已经找到了，那么接下来我们就要探讨一下CachingExecutor是如何基于二级缓存来进行查询的吧
+
+首先他跟我们以往看过的SImpleExecutor的query是没什么区别的
+
+```java
+ @Override
+  public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler)
+      throws SQLException {
+    BoundSql boundSql = ms.getBoundSql(parameterObject);
+    CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
+    return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+  }
+```
+
+关键在于返回的query重载方法上
+
+在CachingExecutor的query()方法中，首先调用createCacheKey()方法创建缓存Key对象，然后调用MappedStatement对象的getCache()方法获取MappedStatement对象中维护的二级缓存对象。然后尝试从二级缓存对象中获取结果，如果获取不到，则调用目标Executor对象的query()方法从数据库获取数据，再将数据添加到二级缓存中。当执行更新语句后，同一命名空间下的二级缓存将会被清空。
+
+```java
+ @Override
+  public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler,
+      CacheKey key, BoundSql boundSql) throws SQLException {
+    // MappedStatement对象中获取维护的二级缓存对象
+    Cache cache = ms.getCache();
+    if (cache != null) {
+      // 判断是否需要刷新二级缓存
+      flushCacheIfRequired(ms);
+      if (ms.isUseCache() && resultHandler == null) {
+        ensureNoOutParams(ms, boundSql);
+        @SuppressWarnings("unchecked")
+        //从TransactionalCacheManager中根据cache和key获取对应的数据
+        List<E> list = (List<E>) tcm.getObject(cache, key);
+        if (list == null) {
+          // 获取不到则从数据库中获取
+          list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+          //重新将数据添加到缓存管理中
+          tcm.putObject(cache, key, list); // issue #578 and #116
+        }
+        return list;
+      }
+    }
+    return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+  }
+```
+
+跟SimpleExecutor相似的就是缓存也会在触发update方法时被刷新或者清除
+
+```java
+ @Override
+  public int update(MappedStatement ms, Object parameterObject) throws SQLException {
+    flushCacheIfRequired(ms);
+    return delegate.update(ms, parameterObject);
+  }
+
+```
+
+而是否进行清除缓存需要查看\<select|update|delete|insert>标签的flushCache属性，如果属性值为true，就清空缓存。\<select>标签的flushCache属性值默认为false，而\<update|delete|insert>标签的flushCache属性值默认为true。
+
+```java
+  private void flushCacheIfRequired(MappedStatement ms) {
+    Cache cache = ms.getCache();
+    if (cache != null && ms.isFlushCacheRequired()) {
+      tcm.clear(cache);
+    }
+  }
+```
+
+二级缓存的实现就是这样的了，而刚刚有提到Cache其实是从MappedStatement对象中获取的，所以这部分我们也是需要一探究竟的
+
+XMLMapperBuilder在解析Mapper配置时会调用cacheElement()方法解析\<cache>标签，在获取\<cache>标签的所有属性信息后，调用MapperBuilderAssistant对象的userNewCache()方法创建二级缓存实例，然后通过MapperBuilderAssistant的currentCache属性保存二级缓存对象的引用。在调用MapperBuilderAssistant对象的addMappedStatement()方法创建MappedStatement对象时会将当前命名空间对应的二级缓存对象的引用添加到MappedStatement对象中。
+
+```java
+public class XMLMapperBuilder extends BaseBuilder {
+
+ 
+  private final MapperBuilderAssistant builderAssistant;
+
+...
+}
+```
+
+```java
+  private void cacheElement(XNode context) {
+    if (context != null) {
+      String type = context.getStringAttribute("type", "PERPETUAL");
+      Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      String eviction = context.getStringAttribute("eviction", "LRU");
+      Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      Long flushInterval = context.getLongAttribute("flushInterval");
+      Integer size = context.getIntAttribute("size");
+      boolean readWrite = !context.getBooleanAttribute("readOnly", false);
+      boolean blocking = context.getBooleanAttribute("blocking", false);
+      Properties props = context.getChildrenAsProperties();
+      builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
+    }
+  }
+```
+
+useNewCache就是将currentCache设置为传入的cache
+
+```java
+  public Cache useNewCache(Class<? extends Cache> typeClass, Class<? extends Cache> evictionClass, Long flushInterval,
+      Integer size, boolean readWrite, boolean blocking, Properties props) {
+    Cache cache = new CacheBuilder(currentNamespace).implementation(valueOrDefault(typeClass, PerpetualCache.class))
+        .addDecorator(valueOrDefault(evictionClass, LruCache.class)).clearInterval(flushInterval).size(size)
+        .readWrite(readWrite).blocking(blocking).properties(props).build();
+    configuration.addCache(cache);
+    currentCache = cache;
+    return cache;
+  }
+```
+
+而在addMapperStatement中就实现了将Cache添加到MapperStatement了
+
+```java
+  public MappedStatement addMappedStatement(String id, SqlSource sqlSource, StatementType statementType,
+      SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout, String parameterMap, Class<?> parameterType,
+      String resultMap, Class<?> resultType, ResultSetType resultSetType, boolean flushCache, boolean useCache,
+      boolean resultOrdered, KeyGenerator keyGenerator, String keyProperty, String keyColumn, String databaseId,
+      LanguageDriver lang, String resultSets, boolean dirtySelect) {
+
+    。。。
+
+    MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
+        .resource(resource).fetchSize(fetchSize).timeout(timeout).statementType(statementType)
+        .keyGenerator(keyGenerator).keyProperty(keyProperty).keyColumn(keyColumn).databaseId(databaseId).lang(lang)
+        .resultOrdered(resultOrdered).resultSets(resultSets)
+        .resultMaps(getStatementResultMaps(resultMap, resultType, id)).resultSetType(resultSetType)
+        .flushCacheRequired(flushCache).useCache(useCache).cache(currentCache).dirtySelect(dirtySelect);
+
+    。。。
+    configuration.addMappedStatement(statement);
+    return statement;
+  }
+```

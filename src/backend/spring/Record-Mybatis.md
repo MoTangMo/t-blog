@@ -1,3 +1,17 @@
+---
+title: 手写Mybatis 
+icon: pen-to-square
+cover: /assets/images/cover2.jpg
+date: 2024-07-21
+star: true
+sticky: true
+category:
+  - SSM
+tag:
+  - 源码
+  - SSM 系列
+  - Java
+---
 # 手写Mybatis
 
 ## 目录

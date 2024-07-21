@@ -6,7 +6,7 @@ date: 2024-05-01
 star: true
 sticky: true
 category:
-  - spring
+  - SSM
 tag:
   - 安全框架
   - Spring 系列
