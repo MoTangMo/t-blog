@@ -239,7 +239,6 @@ Prettier ： 帮助我们根据规范整理代码
 
 在VSCode 中 ，勾选当我们保存文件时自动帮我们格式化文件
 
-![](image/image_DynIcYakdb.png)
 
 ESLint  与 Prettier 其实是有地方的设定是冲突的，比如说，ESLint 需要函数定义的时候函数名和()中间需要间隔一个空格，Prettier 格式化却不会这么做
 
