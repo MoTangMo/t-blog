@@ -1,14 +1,14 @@
 import { defineClientConfig } from "vuepress/client";
 
 
-import { HopeIcon, Layout, NotFound, injectDarkmode, setupDarkmode, setupSidebarItems, scrollPromise } from "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-theme-hope/lib/bundle/export.js";
+import { HopeIcon, Layout, NotFound, injectDarkmode, setupDarkmode, setupSidebarItems, scrollPromise } from "E:/mynote/t-blog/node_modules/vuepress-theme-hope/lib/bundle/export.js";
 
-import { defineCatalogInfoGetter } from "/Users/a0000/Documents/project/t-blog/node_modules/@vuepress/plugin-catalog/lib/client/index.js"
+import { defineCatalogInfoGetter } from "E:/mynote/t-blog/node_modules/@vuepress/plugin-catalog/lib/client/index.js"
 import { h } from "vue"
-import { BlogCategory, BlogHome, BlogType, BloggerInfo, PortfolioHome, Timeline, setupBlog } from "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-theme-hope/lib/bundle/modules/blog/export.js";
-import "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-theme-hope/lib/bundle/modules/blog/styles/all.scss";
+import { BlogCategory, BlogHome, BlogType, BloggerInfo, PortfolioHome, Timeline, setupBlog } from "E:/mynote/t-blog/node_modules/vuepress-theme-hope/lib/bundle/modules/blog/export.js";
+import "E:/mynote/t-blog/node_modules/vuepress-theme-hope/lib/bundle/modules/blog/styles/all.scss";
 
-import "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-theme-hope/lib/bundle/styles/all.scss";
+import "E:/mynote/t-blog/node_modules/vuepress-theme-hope/lib/bundle/styles/all.scss";
 
 defineCatalogInfoGetter((meta) => {
   const title = meta.t;

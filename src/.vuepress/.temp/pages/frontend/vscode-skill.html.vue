@@ -166,7 +166,6 @@
 <p>首先当然是我们的代码格式化工具，代码格式化相信一直是一个让人头疼的问题，一片混乱的代码，即便是一座金山，也很难让人有心情攀登，所以一款能够自动在我们写完代码以后进行格式化，美化我们的代码的工具就显得尤为重要了，这显然也是我们做好编程的第一步。</p>
 <p>那么笔者要推荐的这一款工具就是Prettier 插件了</p>
 <p>只需要在插件库中搜索 Prettier 即可</p>
-<figure><img src="@source/frontend/image/image_DvwxAL-yht.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>安装完毕以后，我们可以在我们的项目目录下创建</p>
 <p>.prettierrc文件</p>
 <p>写以下配置</p>
@@ -192,7 +191,6 @@
     <span class="token property">"trailingComma"</span><span class="token operator">:</span> <span class="token string">"none"</span>
 <span class="token punctuation">}</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>在VSCode 中 ，勾选当我们保存文件时自动帮我们格式化文件</p>
-<figure><img src="@source/frontend/image/image_DynIcYakdb.png" alt="" tabindex="0" loading="lazy"><figcaption></figcaption></figure>
 <p>ESLint  与 Prettier 其实是有地方的设定是冲突的，比如说，ESLint 需要函数定义的时候函数名和()中间需要间隔一个空格，Prettier 格式化却不会这么做</p>
 <p>这时我们就需要取消ESLint 的 函数名和()中间需要间隔一个空格 规则判断，具体操作应是到 .eslintrc.js中的rules中添加一个无视该规则</p>
 <div class="language-json line-numbers-mode" data-ext="json" data-title="json"><pre v-pre class="language-json"><code>'space-before-function-paren'<span class="token operator">:</span> 'off'

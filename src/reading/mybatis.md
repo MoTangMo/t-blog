@@ -1,96 +1,96 @@
-# 深入解读Mybatis
+# 深入解读 Mybatis
 
 ## 目录
 
-- [Mybatis的核心组件](#Mybatis的核心组件)
+- [Mybatis 的核心组件](#Mybatis的核心组件)
   - [Executor](#Executor)
   - [MappedStatement](#MappedStatement)
   - [StatementHandler](#StatementHandler)
   - [TypeHandler](#TypeHandler)
   - [ParameterHandler](#ParameterHandler)
   - [ResultSetHandler](#ResultSetHandler)
-- [SqlSession的创建过程](#SqlSession的创建过程)
-  - [3个阶段](#3个阶段)
-  - [Configuration的创建过程](#Configuration的创建过程)
-    - [Configuration的作用](#Configuration的作用)
-    - [SqlSession开始创建](#SqlSession开始创建)
-- [SqlSession执行Mapper过程](#SqlSession执行Mapper过程)
-  - [Mapper接口的注册过程](#Mapper接口的注册过程)
-    - [getMapper的秘密](#getMapper的秘密)
-  - [Mapper 配置SQL的注册过程](#Mapper-配置SQL的注册过程)
-    - [MappedStatement对象的创建及注册过程](#MappedStatement对象的创建及注册过程)
+- [SqlSession 的创建过程](#SqlSession的创建过程)
+  - [3 个阶段](#3个阶段)
+  - [Configuration 的创建过程](#Configuration的创建过程)
+    - [Configuration 的作用](#Configuration的作用)
+    - [SqlSession 开始创建](#SqlSession开始创建)
+- [SqlSession 执行 Mapper 过程](#SqlSession执行Mapper过程)
+  - [Mapper 接口的注册过程](#Mapper接口的注册过程)
+    - [getMapper 的秘密](#getMapper的秘密)
+  - [Mapper 配置 SQL 的注册过程](#Mapper-配置SQL的注册过程)
+    - [MappedStatement 对象的创建及注册过程](#MappedStatement对象的创建及注册过程)
   - [Mapper 方法调用过程](#Mapper-方法调用过程)
-    - [MethodSignature对象的创建过程](#MethodSignature对象的创建过程)
-    - [ParamNameResolver的处理流程](#ParamNameResolver的处理流程)
-    - [开始执行SQL 方法](#开始执行SQL-方法)
+    - [MethodSignature 对象的创建过程](#MethodSignature对象的创建过程)
+    - [ParamNameResolver 的处理流程](#ParamNameResolver的处理流程)
+    - [开始执行 SQL 方法](#开始执行SQL-方法)
   - [SqlSession 执行 Mapper 过程](#SqlSession-执行-Mapper-过程)
-    - [SimpleExecutor实现细节](#SimpleExecutor实现细节)
-    - [StatementHandler实现细节](#StatementHandler实现细节)
+    - [SimpleExecutor 实现细节](#SimpleExecutor实现细节)
+    - [StatementHandler 实现细节](#StatementHandler实现细节)
 
-### Mybatis的核心组件
+### Mybatis 的核心组件
 
-Mybatis核心就是对JDBC进行了封装，说到底就是帮助我们简化JDBC的操作，所以他必然目的就是跟直接跟JDBC交流。为了更高的扩展性，Mybatis可是用尽了浑身解数了，将JDBC的操作封装了8个核心组件。
+Mybatis 核心就是对 JDBC 进行了封装，说到底就是帮助我们简化 JDBC 的操作，所以他必然目的就是跟直接跟 JDBC 交流。为了更高的扩展性，Mybatis 可是用尽了浑身解数了，将 JDBC 的操作封装了 8 个核心组件。
 
-![](image/image_MnR9LlnM2w.png)
+![](image/image_ofrKBS2gb6.png)
 
-接下来我们先了解了解Mybatis提供的八大组件，为我们后面的手写Mybatis做个铺垫
+接下来我们先了解了解 Mybatis 提供的八大组件，为我们后面的手写 Mybatis 做个铺垫
 
 #### Executor
 
-SqlSession是MyBatis提供的操作数据库的API，但是真正执行SQL的是Executor组件。Executor接口中定义了对数据库的增删改查方法，其中query()和queryCursor()方法用于执行查询操作，update()方法用于执行插入、删除、修改操作。
+SqlSession 是 MyBatis 提供的操作数据库的 API，但是真正执行 SQL 的是 Executor 组件。Executor 接口中定义了对数据库的增删改查方法，其中 query()和 queryCursor()方法用于执行查询操作，update()方法用于执行插入、删除、修改操作。
 
-![](image/image_WP2HjFPqKC.png)
+![](image/image_d9MC84l14f.png)
 
-- &#x20;BaseExecutor中定义的方法的执行流程及通用的处理逻辑，具体的方法由子类来实现，是典型的模板方法模式的应用
-- SimpleExecutor是基础的Executor，能够完成基本的增删改查操作
-- ResueExecutor对JDBC中的Statement对象做了缓存，当执行相同的SQL语句时，直接从缓存中取出Statement对象进行复用，避免了频繁创建和销毁Statement对象，从而提升系统性能，这是享元思想的应用。
-- BatchExecutor则会对调用同一个Mapper执行的update、insert和delete操作，调用Statement对象的批量操作功能
+- &#x20;BaseExecutor 中定义的方法的执行流程及通用的处理逻辑，具体的方法由子类来实现，是典型的模板方法模式的应用
+- SimpleExecutor 是基础的 Executor，能够完成基本的增删改查操作
+- ResueExecutor 对 JDBC 中的 Statement 对象做了缓存，当执行相同的 SQL 语句时，直接从缓存中取出 Statement 对象进行复用，避免了频繁创建和销毁 Statement 对象，从而提升系统性能，这是享元思想的应用。
+- BatchExecutor 则会对调用同一个 Mapper 执行的 update、insert 和 delete 操作，调用 Statement 对象的批量操作功能
 
-Mybatis作为一款优秀的持久层框架，在国内Java开发领域具有广泛的应用。它不仅简化了数据库操作，提高了开发效率，还提供了灵活的映射规则和插件机制。然而，你是否曾想过，Mybatis背后的原理究竟是什么？它是如何实现SQL的动态绑定、参数映射、结果集映射等功能的呢？
+Mybatis 作为一款优秀的持久层框架，在国内 Java 开发领域具有广泛的应用。它不仅简化了数据库操作，提高了开发效率，还提供了灵活的映射规则和插件机制。然而，你是否曾想过，Mybatis 背后的原理究竟是什么？它是如何实现 SQL 的动态绑定、参数映射、结果集映射等功能的呢？
 
-想要循序渐进地了解Mybatis的层层复杂架构，我们必须先了解他的目的是什么？没错，刚刚介绍了目的在于**简化了数据库操作，提高了开发效率，还提供了灵活的映射规则和插件机制**，所以我们所有的行为最终的目标是要做到最大的简化数据库操作，并使得其更好地拓展。
+想要循序渐进地了解 Mybatis 的层层复杂架构，我们必须先了解他的目的是什么？没错，刚刚介绍了目的在于**简化了数据库操作，提高了开发效率，还提供了灵活的映射规则和插件机制**，所以我们所有的行为最终的目标是要做到最大的简化数据库操作，并使得其更好地拓展。
 
 #### MappedStatement
 
-用于描述SQL配置信息，MyBatis框架启动时，XML文件或者注解配置的SQL信息会被转换为MappedStatement对象注册到Configuration组件中。
+用于描述 SQL 配置信息，MyBatis 框架启动时，XML 文件或者注解配置的 SQL 信息会被转换为 MappedStatement 对象注册到 Configuration 组件中。
 
 #### StatementHandler
 
-StatementHandler组件封装了对JDBC Statement的操作，例如设置Statement对象的fetchSize属性、设置查询超时时间、调用JDBC Statement与数据库交互等。
+StatementHandler 组件封装了对 JDBC Statement 的操作，例如设置 Statement 对象的 fetchSize 属性、设置查询超时时间、调用 JDBC Statement 与数据库交互等。
 
 #### TypeHandler
 
-类型处理器，用于Java类型与JDBC类型之间的转换。
+类型处理器，用于 Java 类型与 JDBC 类型之间的转换。
 
 #### ParameterHandler
 
-当使用PreparedStatement或者CallableStatement对象时，如果SQL语句中有参数占位符，在执行SQL语句之前，就需要为参数占位符设置值。ParameterHandler的作用是在PreparedStatementHandler和CallableStatementHandler操作对应的Statement执行数据库交互之前为参数占位符设置值。
+当使用 PreparedStatement 或者 CallableStatement 对象时，如果 SQL 语句中有参数占位符，在执行 SQL 语句之前，就需要为参数占位符设置值。ParameterHandler 的作用是在 PreparedStatementHandler 和 CallableStatementHandler 操作对应的 Statement 执行数据库交互之前为参数占位符设置值。
 
 #### ResultSetHandler
 
-ResultSetHandler用于在StatementHandler对象执行完查询操作或存储过程后，对结果集或存储过程的执行结果进行处理。
+ResultSetHandler 用于在 StatementHandler 对象执行完查询操作或存储过程后，对结果集或存储过程的执行结果进行处理。
 
-## SqlSession的创建过程
+## SqlSession 的创建过程
 
-### 3个阶段
+### 3 个阶段
 
-1. Configuration实例的创建过程
-2. SqlSessionFactory实例的创建过程
-3. SqlSession实例化的过程
+1. Configuration 实例的创建过程
+2. SqlSessionFactory 实例的创建过程
+3. SqlSession 实例化的过程
 
-### Configuration的创建过程
+### Configuration 的创建过程
 
-Configuration是用于注册配置处理器并存储配置信息的，这些配置信息有环境信息，Mapper信息，所以SqlSession的创建离不开Configuration中的配置信息的。
+Configuration 是用于注册配置处理器并存储配置信息的，这些配置信息有环境信息，Mapper 信息，所以 SqlSession 的创建离不开 Configuration 中的配置信息的。
 
-#### Configuration的作用
+#### Configuration 的作用
 
-- 用于描述MyBatis配置信息，例如\<settings>标签配置的参数信息。
-- 作为容器注册MyBatis其他组件，例如TypeHandler、MappedStatement等。
-- 提供工厂方法，创建ResultSetHandler、StatementHandler、Executor、ParameterHandler等组件实例
+- 用于描述 MyBatis 配置信息，例如\<settings>标签配置的参数信息。
+- 作为容器注册 MyBatis 其他组件，例如 TypeHandler、MappedStatement 等。
+- 提供工厂方法，创建 ResultSetHandler、StatementHandler、Executor、ParameterHandler 等组件实例
 
-而通常我们会将mapper，环境等信息以xml的形式书写，所以解析xml必然是Configuration创建最开始干的事
+而通常我们会将 mapper，环境等信息以 xml 的形式书写，所以解析 xml 必然是 Configuration 创建最开始干的事
 
-当然Mybatis将解析xml的方法进行了封装，封装成了XMLConfigBuilder类，我们只需要将用该类的parse方法，就会将配置解析成对应的Configuration进行返回了
+当然 Mybatis 将解析 xml 的方法进行了封装，封装成了 XMLConfigBuilder 类，我们只需要将用该类的 parse 方法，就会将配置解析成对应的 Configuration 进行返回了
 
 ```java
 public Configuration parse() {
@@ -104,13 +104,13 @@ public Configuration parse() {
     }
 ```
 
-MyBatis框架启动后，首先创建Configuration对象，然后解析所有配置信息，将解析后的配置信息存放在Configuration对象中。
+MyBatis 框架启动后，首先创建 Configuration 对象，然后解析所有配置信息，将解析后的配置信息存放在 Configuration 对象中。
 
-#### SqlSession开始创建
+#### SqlSession 开始创建
 
-MyBatis中的SqlSession实例使用工厂模式创建，所以在创建SqlSession实例之前需要先创建SqlSessionFactory工厂对象，然后调用SqlSessionFactory对象的openSession()方法
+MyBatis 中的 SqlSession 实例使用工厂模式创建，所以在创建 SqlSession 实例之前需要先创建 SqlSessionFactory 工厂对象，然后调用 SqlSessionFactory 对象的 openSession()方法
 
-而SqlSessionFactory是由SqlSessionFactoryBuilder来创建的
+而 SqlSessionFactory 是由 SqlSessionFactoryBuilder 来创建的
 
 ```java
 public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
@@ -137,7 +137,7 @@ public SqlSessionFactory build(Reader reader, String environment, Properties pro
     }
 ```
 
-指向的build方法就是创建一个DefaultSessionFactory
+指向的 build 方法就是创建一个 DefaultSessionFactory
 
 ```java
     public SqlSessionFactory build(Configuration config) {
@@ -146,9 +146,9 @@ public SqlSessionFactory build(Reader reader, String environment, Properties pro
 
 ```
 
-接下来通过DefaultSqlSessionFactory的openSession方法便能解密SqlSession的创建过程了
+接下来通过 DefaultSqlSessionFactory 的 openSession 方法便能解密 SqlSession 的创建过程了
 
-而DefaultSqlSessionFactory的openSession方法的实现如下：
+而 DefaultSqlSessionFactory 的 openSession 方法的实现如下：
 
 ```java
 public SqlSession openSession() {
@@ -157,7 +157,7 @@ public SqlSession openSession() {
 
 ```
 
-而openSessionFromDataSource的实现如下：
+而 openSessionFromDataSource 的实现如下：
 
 ```java
 private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
@@ -186,26 +186,24 @@ private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionI
 
 ```
 
-上面的实现首先通过Configuration对象获取MyBatis主配置文件中通过\<environment>标签配置的环境信息，然后根据配置的事务管理器类型创建对应的事务管理器工厂。
+上面的实现首先通过 Configuration 对象获取 MyBatis 主配置文件中通过\<environment>标签配置的环境信息，然后根据配置的事务管理器类型创建对应的事务管理器工厂。
 
-MyBatis提供了两种事务管理器，分别为JdbcTransaction和ManagedTransaction。其中，JdbcTransaction是使用JDBC中的Connection对象实现事务管理的，而ManagedTransaction表示事务由外部容器管理。
+MyBatis 提供了两种事务管理器，分别为 JdbcTransaction 和 ManagedTransaction。其中，JdbcTransaction 是使用 JDBC 中的 Connection 对象实现事务管理的，而 ManagedTransaction 表示事务由外部容器管理。
 
-DefaultSqlSession对象中持有Executor对象的引用，真正执行SQL操作的是Executor对象。
+DefaultSqlSession 对象中持有 Executor 对象的引用，真正执行 SQL 操作的是 Executor 对象。
 
-![](image/image_ua-S7qhAYs.png)
+## SqlSession 执行 Mapper 过程
 
-## SqlSession执行Mapper过程
+执行 Mapper 过程可以分成 4 个阶段
 
-执行Mapper过程可以分成4个阶段
+1. Mapper 接口的注册过程
+2. MapperStatement 对象的注册过程
+3. Mapper 方法的调用过程
+4. SqlSession 调用 Mapper 的过程
 
-1. Mapper接口的注册过程
-2. MapperStatement对象的注册过程
-3. Mapper方法的调用过程
-4. SqlSession调用Mapper的过程
+### Mapper 接口的注册过程
 
-### Mapper接口的注册过程
-
-不妨来看看Mapper调用的过程，整个过程就是将xml我们配置的文件信息通过加载成流的方式进行SqlSession的构建，通过SqlSession中的内置方法getMapper来获取映射对象，为什么通过getMapper就能拿到对应的映射器对象呢？
+不妨来看看 Mapper 调用的过程，整个过程就是将 xml 我们配置的文件信息通过加载成流的方式进行 SqlSession 的构建，通过 SqlSession 中的内置方法 getMapper 来获取映射对象，为什么通过 getMapper 就能拿到对应的映射器对象呢？
 
 ```java
  // 1. 从SqlSessionFactory中获取SqlSession
@@ -216,9 +214,9 @@ DefaultSqlSession对象中持有Executor对象的引用，真正执行SQL操作�
  IUserDao userDao = sqlSession.getMapper(IUserDao.class);
 ```
 
-#### getMapper的秘密
+#### getMapper 的秘密
 
-Session提供的getMapper方法实则是调用了configuration的getMapper方法，而configuration是从MapperRegistry Mapper注册器中获取的，具体代码如下
+Session 提供的 getMapper 方法实则是调用了 configuration 的 getMapper 方法，而 configuration 是从 MapperRegistry Mapper 注册器中获取的，具体代码如下
 
 ```java
  public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
@@ -234,9 +232,9 @@ Session提供的getMapper方法实则是调用了configuration的getMapper方法
   }
 ```
 
-可以发现的是Mapper是通过我们传入的Class 类型到knownMappers中去找，找对应的工厂，从这里我们大概可以猜到的是：
+可以发现的是 Mapper 是通过我们传入的 Class 类型到 knownMappers 中去找，找对应的工厂，从这里我们大概可以猜到的是：
 
-Mybatis将Class类型和Mapper工厂绑定到一起组成一个Map类型存在内存中了，然后我们调用的时候就从这里获取，后面就通过代理工厂mapperProxyFactory.newInstance(sqlSession)直接帮助我们实例化具体的类了，
+Mybatis 将 Class 类型和 Mapper 工厂绑定到一起组成一个 Map 类型存在内存中了，然后我们调用的时候就从这里获取，后面就通过代理工厂 mapperProxyFactory.newInstance(sqlSession)直接帮助我们实例化具体的类了，
 
 当然往上看看，看到这个证明我们猜对了
 
@@ -244,7 +242,7 @@ Mybatis将Class类型和Mapper工厂绑定到一起组成一个Map类型存在�
 private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 ```
 
-不妨再努努力看看他是如何将信息存至knownMappers 的呢
+不妨再努努力看看他是如何将信息存至 knownMappers 的呢
 
 ```java
 public <T> void addMapper(Class<T> type) {
@@ -268,8 +266,8 @@ public <T> void addMapper(Class<T> type) {
       }
     }
   }
-  
-  
+
+
    /**
    * @since 3.2.2
    */
@@ -284,15 +282,13 @@ public <T> void addMapper(Class<T> type) {
 
 ```
 
-MyBatis框架在应用启动时会解析所有的Mapper接口，然后调用MapperRegistry对象的addMapper()方法将Mapper接口信息和对应的MapperProxyFactory对象注册到MapperRegistry对象中
+MyBatis 框架在应用启动时会解析所有的 Mapper 接口，然后调用 MapperRegistry 对象的 addMapper()方法将 Mapper 接口信息和对应的 MapperProxyFactory 对象注册到 MapperRegistry 对象中
 
-![](image/image_alMbq2F7WZ.png)
+### Mapper 配置 SQL 的注册过程
 
-### Mapper 配置SQL的注册过程
+MyBatis 通过 MappedStatement 类描述 Mapper 的 SQL 配置信息。SQL 配置有两种方式：一种是通过 XML 文件配置；另一种是通过 Java 注解，而 Java 注解的本质就是一种轻量级的配置信息。
 
-MyBatis通过MappedStatement类描述Mapper的SQL配置信息。SQL配置有两种方式：一种是通过XML文件配置；另一种是通过Java注解，而Java注解的本质就是一种轻量级的配置信息。
-
-在Configuration中存在着这么个Map，该属性用于注册MyBatis中所有的MappedStatement对象
+在 Configuration 中存在着这么个 Map，该属性用于注册 MyBatis 中所有的 MappedStatement 对象
 
 ```java
  protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
@@ -300,9 +296,9 @@ MyBatis通过MappedStatement类描述Mapper的SQL配置信息。SQL配置有两�
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
 ```
 
-mappedStatements属性是一个Map对象，它的Key为MapperSQL配置的Id，如果SQL是通过XML配置的，则Id为命名空间加上\<select|update|delete|insert>标签的Id，如果SQL通过Java注解配置，则Id为Mapper接口的完全限定名（包括包名）加上方法名称。
+mappedStatements 属性是一个 Map 对象，它的 Key 为 MapperSQL 配置的 Id，如果 SQL 是通过 XML 配置的，则 Id 为命名空间加上\<select|update|delete|insert>标签的 Id，如果 SQL 通过 Java 注解配置，则 Id 为 Mapper 接口的完全限定名（包括包名）加上方法名称。
 
-当然在Configuration中也提供了添加MappedStatement的方法
+当然在 Configuration 中也提供了添加 MappedStatement 的方法
 
 ```java
   public void addMappedStatement(MappedStatement ms) {
@@ -311,12 +307,12 @@ mappedStatements属性是一个Map对象，它的Key为MapperSQL配置的Id，�
 
 ```
 
-#### MappedStatement对象的创建及注册过程
+#### MappedStatement 对象的创建及注册过程
 
-MappedStatement对象创建莫过于解析我们写在xml或者写在注解上的SQL 信息成MappedStatement对象，解析xml中，关键在于\<mappers>的元素解析，\<mappers>标签是通过XMLConfigBuilder类的mapperElement()方法来解析的。
+MappedStatement 对象创建莫过于解析我们写在 xml 或者写在注解上的 SQL 信息成 MappedStatement 对象，解析 xml 中，关键在于\<mappers>的元素解析，\<mappers>标签是通过 XMLConfigBuilder 类的 mapperElement()方法来解析的。
 
 ```java
-    
+
 /**
   可以对照着这个mappers配置信息进行源码阅读
   <mappers>
@@ -336,7 +332,7 @@ private void mappersElement(XNode context) throws Exception {
         String mapperPackage = child.getStringAttribute("name");
         configuration.addMappers(mapperPackage);
       } else {
-    
+
         String resource = child.getStringAttribute("resource");
         String url = child.getStringAttribute("url");
         String mapperClass = child.getStringAttribute("class");
@@ -349,7 +345,7 @@ private void mappersElement(XNode context) throws Exception {
             mapperParser.parse();
           }
         } else if (resource == null && url != null && mapperClass == null) {
-        
+
           ErrorContext.instance().resource(url);
           try (InputStream inputStream = Resources.getUrlAsStream(url)) {
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url,
@@ -370,7 +366,7 @@ private void mappersElement(XNode context) throws Exception {
 
 ```
 
-注意这段代码，这里会创建XMLMapperBuilder来进行进一步的元素抽取
+注意这段代码，这里会创建 XMLMapperBuilder 来进行进一步的元素抽取
 
 ```java
  XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url,
@@ -378,7 +374,7 @@ private void mappersElement(XNode context) throws Exception {
             mapperParser.parse();
 ```
 
-跟踪进去便可以发现，他其实是对mapper下的元素进行处理了
+跟踪进去便可以发现，他其实是对 mapper 下的元素进行处理了
 
 ```java
   public void parse() {
@@ -393,7 +389,7 @@ private void mappersElement(XNode context) throws Exception {
   }
 ```
 
-这里面便是我们平时写在xml上的SQL处理了
+这里面便是我们平时写在 xml 上的 SQL 处理了
 
 ```java
   private void configurationElement(XNode context) {
@@ -418,7 +414,7 @@ private void mappersElement(XNode context) throws Exception {
   }
 ```
 
-其实我们比较关注的当然是他是如何解析我们的SQL 语句的，代码显示他是调用了buildStatementFromContext这个方法的
+其实我们比较关注的当然是他是如何解析我们的 SQL 语句的，代码显示他是调用了 buildStatementFromContext 这个方法的
 
 ```java
   private void buildStatementFromContext(List<XNode> list, String requiredDatabaseId) {
@@ -434,7 +430,7 @@ private void mappersElement(XNode context) throws Exception {
   }
 ```
 
-原来SQL 交给了XMLStatementBuilder 来处理了，并调用了其parseStatementNode方法，虽然这里兜兜转转的，但是其实想想确实是合理的，各个类各施其职，这样不仅好维护，代码结构也十分清晰，跟踪进去之后，对sql 的核心处理逻辑就在这里了
+原来 SQL 交给了 XMLStatementBuilder 来处理了，并调用了其 parseStatementNode 方法，虽然这里兜兜转转的，但是其实想想确实是合理的，各个类各施其职，这样不仅好维护，代码结构也十分清晰，跟踪进去之后，对 sql 的核心处理逻辑就在这里了
 
 ```java
  public void parseStatementNode() {
@@ -510,19 +506,19 @@ private void mappersElement(XNode context) throws Exception {
 
 （1）获取\<select|insert|delete|update>标签的所有属性信息。
 
-（2）将\<include>标签引用的SQL片段替换为对应的\<sql>标签中定义的内容。
+（2）将\<include>标签引用的 SQL 片段替换为对应的\<sql>标签中定义的内容。
 
-（3）获取lang属性指定的LanguageDriver，通过LanguageDriver创建SqlSource。MyBatis中的SqlSource表示一个SQL资源，后面章节中会对SqlSource做更详细的介绍。
+（3）获取 lang 属性指定的 LanguageDriver，通过 LanguageDriver 创建 SqlSource。MyBatis 中的 SqlSource 表示一个 SQL 资源，后面章节中会对 SqlSource 做更详细的介绍。
 
-（4）获取KeyGenerator对象。KeyGenerator的不同实例代表不同的主键生成策略。
+（4）获取 KeyGenerator 对象。KeyGenerator 的不同实例代表不同的主键生成策略。
 
-（5）所有解析工作完成后，使用MapperBuilderAssistant对象的addMappedStatement()方法创建MappedStatement对象。创建完成后，调用Configuration对象的addMappedStatement()方法将MappedStatement对象注册到Configuration对象中。
+（5）所有解析工作完成后，使用 MapperBuilderAssistant 对象的 addMappedStatement()方法创建 MappedStatement 对象。创建完成后，调用 Configuration 对象的 addMappedStatement()方法将 MappedStatement 对象注册到 Configuration 对象中。
 
 这样 MappedStatement 对象的配置就算是完成了
 
 ### Mapper 方法调用过程
 
-以往节我们清楚了getMapper是通过动态代理的方式来创建对应接口的代理对象
+以往节我们清楚了 getMapper 是通过动态代理的方式来创建对应接口的代理对象
 
 ```java
 SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -546,7 +542,7 @@ SqlSession sqlSession = sqlSessionFactory.openSession();
 
 那么代理当中做了什么呢？
 
-由于是实现的JDK提供的代理，所以我们需要到MapperProxy中查看invoke干了什么就行了。
+由于是实现的 JDK 提供的代理，所以我们需要到 MapperProxy 中查看 invoke 干了什么就行了。
 
 ```java
 @Override
@@ -563,7 +559,7 @@ SqlSession sqlSession = sqlSessionFactory.openSession();
   }
 ```
 
-其中这么一段代码为的就是排除toString(),equals()这些直接来自于Object的方法，因为Java中的对象基本上都是继承与Object的，所以如果是这类Object的原生方法，则是不需要再做处理，直接调用即可。否则会进行cachedInvoker做额外的调用，比如查询数据库的接口方法。
+其中这么一段代码为的就是排除 toString(),equals()这些直接来自于 Object 的方法，因为 Java 中的对象基本上都是继承与 Object 的，所以如果是这类 Object 的原生方法，则是不需要再做处理，直接调用即可。否则会进行 cachedInvoker 做额外的调用，比如查询数据库的接口方法。
 
 ```java
   if (Object.class.equals(method.getDeclaringClass())) {
@@ -571,7 +567,7 @@ SqlSession sqlSession = sqlSessionFactory.openSession();
       }
 ```
 
-而cachedInvoker则是创建并缓存MapperMethodInvoker实例，这些实例用于调用Mybatis映射器接口中定义的方法。
+而 cachedInvoker 则是创建并缓存 MapperMethodInvoker 实例，这些实例用于调用 Mybatis 映射器接口中定义的方法。
 
 ```java
  private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
@@ -598,7 +594,7 @@ SqlSession sqlSession = sqlSessionFactory.openSession();
 
 ```
 
-从这段代码我们看到了他其实有new 一个MapperMethod&#x20;
+从这段代码我们看到了他其实有 new 一个 MapperMethod&#x20;
 
 ```java
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
@@ -608,11 +604,11 @@ SqlSession sqlSession = sqlSessionFactory.openSession();
 
 ```
 
-在MapperMethod构造方法中创建了一个SqlCommand对象和一个MethodSignature对象：SqlCommand对象用于获取SQL语句的类型、Mapper的Id等信息；MethodSignature对象用于获取方法的签名信息，例如Mapper方法的参数名、参数注解等信息。
+在 MapperMethod 构造方法中创建了一个 SqlCommand 对象和一个 MethodSignature 对象：SqlCommand 对象用于获取 SQL 语句的类型、Mapper 的 Id 等信息；MethodSignature 对象用于获取方法的签名信息，例如 Mapper 方法的参数名、参数注解等信息。
 
-那么接下来我们就需要解密SqlCommand和MethodSignature都做了些什么
+那么接下来我们就需要解密 SqlCommand 和 MethodSignature 都做了些什么
 
-首先是SqlCommand，SqlCommoand中存储了对应的sql语句和sql 类型
+首先是 SqlCommand，SqlCommoand 中存储了对应的 sql 语句和 sql 类型
 
 ```java
 public static class SqlCommand {
@@ -644,7 +640,7 @@ public static class SqlCommand {
 
 ```
 
-而resolveMappedStatement是为了根据Mapper接口的完全限定名和方法名获取对应的MappedStatement对象
+而 resolveMappedStatement 是为了根据 Mapper 接口的完全限定名和方法名获取对应的 MappedStatement 对象
 
 ```java
 
@@ -671,13 +667,14 @@ public static class SqlCommand {
   }
 ```
 
-以上代码首先将接口的完全限定名和方法名进行拼接，作为Mapper的Id从Configuration对象中查找对应的MappedStatement对象，如果查找不到，则判断该方法是否是从父接口中继承的，如果是，就以父接口作为参数递归调用resolveMappedStatement()方法，若找到对应的MappedStatement对象，则返回该对象，否则返回null。
+以上代码首先将接口的完全限定名和方法名进行拼接，作为 Mapper 的 Id 从 Configuration 对象中查找对应的 MappedStatement 对象，如果查找不到，则判断该方法是否是从父接口中继承的，如果是，就以父接口作为参数递归调用 resolveMappedStatement()方法，若找到对应的 MappedStatement 对象，则返回该对象，否则返回 null。
 
-#### MethodSignature对象的创建过程
+#### MethodSignature 对象的创建过程
 
-MethodSignature对象在创建时主要完成了以下三件事情
+MethodSignature 对象在创建时主要完成了以下三件事情
 
-1. 获取Mapper方法的返回值类型，具体是哪种类型，通过boolean类型的属性进行标记。例如，当返回值类型为void时，returnsVoid属性值为true，当返回值类型为List时，将returnsMap属性值设置为true。
+1. 获取 Mapper 方法的返回值类型，具体是哪种类型，通过 boolean 类型的属性进行标记。例如，当返回值类型为 void 时，returnsVoid 属性值为 true，当返回值类型为 List 时，将 returnsMap 属性值设置为 true。
+
    ```java
 
        private final boolean returnsMany;
@@ -686,7 +683,8 @@ MethodSignature对象在创建时主要完成了以下三件事情
        private final boolean returnsCursor;
        private final boolean returnsOptional;
    ```
-2. 记录RowBounds参数位置，用于处理后续的分页查询，同时记录ResultHandler参数位置，用于处理从数据库中检索的每一行数据。
+
+2. 记录 RowBounds 参数位置，用于处理后续的分页查询，同时记录 ResultHandler 参数位置，用于处理从数据库中检索的每一行数据。
    ```java
        private Integer getUniqueParamIndex(Method method, Class<?> paramType) {
          Integer index = null;
@@ -703,7 +701,7 @@ MethodSignature对象在创建时主要完成了以下三件事情
          return index;
        }
    ```
-3. 创建ParamNameResolver对象。ParamNameResolver对象用于解析Mapper方法中的参数名称及参数注解信息。
+3. 创建 ParamNameResolver 对象。ParamNameResolver 对象用于解析 Mapper 方法中的参数名称及参数注解信息。
 
 具体代码如下：
 
@@ -736,9 +734,9 @@ public MethodSignature(Configuration configuration, Class<?> mapperInterface, Me
     }
 ```
 
-#### ParamNameResolver的处理流程
+#### ParamNameResolver 的处理流程
 
-ParamNameResolver是用于mapper方法的参数解析的，具体实现如下：
+ParamNameResolver 是用于 mapper 方法的参数解析的，具体实现如下：
 
 ```java
  public ParamNameResolver(Configuration config, Method method) {
@@ -780,13 +778,13 @@ ParamNameResolver是用于mapper方法的参数解析的，具体实现如下：
   }
 ```
 
-在ParamNameResolver构造方法中，对所有Mapper方法的所有参数信息进行遍历，首先判断参数中是否有@Param注解，如果包含@Param注解，就从注解中获取参数名称，如果参数中没有@Param注解，就根据MyBatis主配置文件中的useActualParamName参数确定是否获取实际方法定义的参数名称，若useActualParamName参数值为true，则使用方法定义的参数名称。解析完毕后，将参数信息保存在一个不可修改的names属性中，该属性是一个SortedMap\<Integer, String>类型的对象。
+在 ParamNameResolver 构造方法中，对所有 Mapper 方法的所有参数信息进行遍历，首先判断参数中是否有@Param 注解，如果包含@Param 注解，就从注解中获取参数名称，如果参数中没有@Param 注解，就根据 MyBatis 主配置文件中的 useActualParamName 参数确定是否获取实际方法定义的参数名称，若 useActualParamName 参数值为 true，则使用方法定义的参数名称。解析完毕后，将参数信息保存在一个不可修改的 names 属性中，该属性是一个 SortedMap\<Integer, String>类型的对象。
 
-至此，SqlSession执行Mapper的注册过程已经完成，纵观全局，其实这个过程无非是在为Configuration收集信息，为下一步执行SQL方法做准备。
+至此，SqlSession 执行 Mapper 的注册过程已经完成，纵观全局，其实这个过程无非是在为 Configuration 收集信息，为下一步执行 SQL 方法做准备。
 
-#### 开始执行SQL 方法
+#### 开始执行 SQL 方法
 
-不妨我们再次回首，看看MapperProxy 中是如何处理invoke的 ，显然核心逻辑是在 cachedInvoker(method).invoke(proxy, method, args, sqlSession)这里
+不妨我们再次回首，看看 MapperProxy 中是如何处理 invoke 的 ，显然核心逻辑是在 cachedInvoker(method).invoke(proxy, method, args, sqlSession)这里
 
 ```java
 @Override
@@ -803,7 +801,7 @@ ParamNameResolver是用于mapper方法的参数解析的，具体实现如下：
 
 ```
 
-&#x20;MapperProxy 提供了 MapperMethodInvoker →invoke 方法来执行调用MapperMethod 的execute方法
+&#x20;MapperProxy 提供了 MapperMethodInvoker →invoke 方法来执行调用 MapperMethod 的 execute 方法
 
 ```java
   interface MapperMethodInvoker {
@@ -837,7 +835,7 @@ ParamNameResolver是用于mapper方法的参数解析的，具体实现如下：
   }
 ```
 
-好了，接下来我们就可以追踪到MapperMethod 的execute方法了
+好了，接下来我们就可以追踪到 MapperMethod 的 execute 方法了
 
 ```java
    private final SqlCommand command;
@@ -848,7 +846,7 @@ ParamNameResolver是用于mapper方法的参数解析的，具体实现如下：
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
- 
+
  public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
     // 获取SQL 类型
@@ -904,11 +902,11 @@ ParamNameResolver是用于mapper方法的参数解析的，具体实现如下：
   }
 ```
 
-总结：Mapper的调用就是通过动态代理将Mapper方法的调用转换为调用SqlSession提供的增删改查方法，以Mapper的Id作为参数，执行数据库的增删改查操作
+总结：Mapper 的调用就是通过动态代理将 Mapper 方法的调用转换为调用 SqlSession 提供的增删改查方法，以 Mapper 的 Id 作为参数，执行数据库的增删改查操作
 
 ### SqlSession 执行 Mapper 过程
 
-观察一下MapperMethod 的execute方法,可以发现在这里是通过执行sqlSession的insert，selectOned等方法来执行SQL返回结果的
+观察一下 MapperMethod 的 execute 方法,可以发现在这里是通过执行 sqlSession 的 insert，selectOned 等方法来执行 SQL 返回结果的
 
 ```java
 public Object execute(SqlSession sqlSession, Object[] args) {
@@ -961,7 +959,7 @@ public Object execute(SqlSession sqlSession, Object[] args) {
   }
 ```
 
-所以执行Mapper的过程，我们应该把注意力放在Session接口方法的调用过程
+所以执行 Mapper 的过程，我们应该把注意力放在 Session 接口方法的调用过程
 
 ```java
 public interface SqlSession extends Closeable {
@@ -1316,7 +1314,7 @@ public interface SqlSession extends Closeable {
 
 ```
 
-对于SqlSession来说，Mybatis只提供了一个DefaultSqlSession
+对于 SqlSession 来说，Mybatis 只提供了一个 DefaultSqlSession
 
 ```java
 public class DefaultSqlSession implements SqlSession {
@@ -1617,12 +1615,12 @@ public class DefaultSqlSession implements SqlSession {
 
 ```
 
-以selectList为例：
+以 selectList 为例：
 
 ```java
  private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
-      //根据提供的ID获取MappedStatement 
+      //根据提供的ID获取MappedStatement
       MappedStatement ms = configuration.getMappedStatement(statement);
       dirty |= ms.isDirtySelect();
       // 执行query方法
@@ -1636,9 +1634,9 @@ public class DefaultSqlSession implements SqlSession {
 
 ```
 
-在DefaultSqlSession的selectList()方法中，首先根据Mapper的Id从Configuration对象中获取对应的MappedStatement对象，然后以MappedStatement对象作为参数，调用Executor实例的query()方法完成查询操作。
+在 DefaultSqlSession 的 selectList()方法中，首先根据 Mapper 的 Id 从 Configuration 对象中获取对应的 MappedStatement 对象，然后以 MappedStatement 对象作为参数，调用 Executor 实例的 query()方法完成查询操作。
 
-接下来需要跟踪query方法，Executor是个接口，他有一个实现BaseExecutor，该类的query方法就是我们的研究对象，在BaseExecutor类的query()方法中，首先从MappedStatement对象中获取BoundSql对象，BoundSql类中封装了经过解析后的SQL语句及参数映射信息。然后创建CacheKey对象，该对象用于缓存的Key值。
+接下来需要跟踪 query 方法，Executor 是个接口，他有一个实现 BaseExecutor，该类的 query 方法就是我们的研究对象，在 BaseExecutor 类的 query()方法中，首先从 MappedStatement 对象中获取 BoundSql 对象，BoundSql 类中封装了经过解析后的 SQL 语句及参数映射信息。然后创建 CacheKey 对象，该对象用于缓存的 Key 值。
 
 ```java
   @Override
@@ -1651,7 +1649,7 @@ public class DefaultSqlSession implements SqlSession {
 
 ```
 
-当然，query还有一个重载实现，在重载的query()方法中，首先从MyBatis一级缓存中获取查询结果，如果缓存中没有，则调用BaseExecutor类的queryFromDatabase()方法从数据库中查询
+当然，query 还有一个重载实现，在重载的 query()方法中，首先从 MyBatis 一级缓存中获取查询结果，如果缓存中没有，则调用 BaseExecutor 类的 queryFromDatabase()方法从数据库中查询
 
 ```java
   @SuppressWarnings("unchecked")
@@ -1692,7 +1690,7 @@ public class DefaultSqlSession implements SqlSession {
   }
 ```
 
-像以上代码，Mybatis首先会尝试从缓存中获取结果，缓存中没有就会调用queryFromDatabase方法从数据库中获取数据，以下代码核心逻辑在于调用doQuery()方法进行查询，然后将查询结果进行缓存，doQuery()是一个模板方法，由BaseExecutor子类实现。
+像以上代码，Mybatis 首先会尝试从缓存中获取结果，缓存中没有就会调用 queryFromDatabase 方法从数据库中获取数据，以下代码核心逻辑在于调用 doQuery()方法进行查询，然后将查询结果进行缓存，doQuery()是一个模板方法，由 BaseExecutor 子类实现。
 
 ```java
 private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds,
@@ -1713,15 +1711,15 @@ private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowB
     return list;
   }
 
-  
+
 
 ```
 
-#### SimpleExecutor实现细节
+#### SimpleExecutor 实现细节
 
-Executor有几个不同的实现，分别为BatchExecutor、SimpleExecutor和ReuseExecutor
+Executor 有几个不同的实现，分别为 BatchExecutor、SimpleExecutor 和 ReuseExecutor
 
-首先先来查看SimpleExecutor对Executor的实现
+首先先来查看 SimpleExecutor 对 Executor 的实现
 
 ```java
 public class SimpleExecutor extends BaseExecutor {
@@ -1731,7 +1729,7 @@ public class SimpleExecutor extends BaseExecutor {
   }
 
   ...
-  
+
   @Override
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
       BoundSql boundSql) throws SQLException {
@@ -1749,14 +1747,14 @@ public class SimpleExecutor extends BaseExecutor {
       closeStatement(stmt);
     }
   }
-  
+
  ...
 }
 ```
 
-在SimpleExecutor类的doQuery()方法中，首先调用Configuration对象的newStatementHandler()方法创建StatementHandler对象。newStatementHandler()方法返回的是RoutingStatementHandler的实例。在RoutingStatementHandler类中，会根据配置Mapper时statementType属性指定的StatementHandler类型创建对应的StatementHandler实例进行处理，例如statementType属性值为SIMPLE时，则创建SimpleStatementHandler实例。
+在 SimpleExecutor 类的 doQuery()方法中，首先调用 Configuration 对象的 newStatementHandler()方法创建 StatementHandler 对象。newStatementHandler()方法返回的是 RoutingStatementHandler 的实例。在 RoutingStatementHandler 类中，会根据配置 Mapper 时 statementType 属性指定的 StatementHandler 类型创建对应的 StatementHandler 实例进行处理，例如 statementType 属性值为 SIMPLE 时，则创建 SimpleStatementHandler 实例。
 
-StatementHandler对象创建完毕后，接着调用SimpleExecutor类的prepareStatement()方法创建JDBC中的Statement对象，然后为Statement对象设置参数操作。Statement对象初始化工作完成后，再调用StatementHandler的query()方法执行查询操作。
+StatementHandler 对象创建完毕后，接着调用 SimpleExecutor 类的 prepareStatement()方法创建 JDBC 中的 Statement 对象，然后为 Statement 对象设置参数操作。Statement 对象初始化工作完成后，再调用 StatementHandler 的 query()方法执行查询操作。
 
 prepareStatement()是如何对参数进行配置的呢？
 
@@ -1770,13 +1768,13 @@ prepareStatement()是如何对参数进行配置的呢？
   }
 ```
 
-prepareStatement方法首先获取JDBC中的Connection对象，然后调用StatementHandler对象的prepare()方法创建Statement对象，接着调用StatementHandler对象的parameterize()方法（parameterize()方法中会使用ParameterHandler为Statement对象设置参数）。
+prepareStatement 方法首先获取 JDBC 中的 Connection 对象，然后调用 StatementHandler 对象的 prepare()方法创建 Statement 对象，接着调用 StatementHandler 对象的 parameterize()方法（parameterize()方法中会使用 ParameterHandler 为 Statement 对象设置参数）。
 
-#### StatementHandler实现细节
+#### StatementHandler 实现细节
 
-MyBatis的StatementHandler接口有几个不同的实现类，分别为SimpleStatementHandler、PreparedStatementHandler和CallableStatementHandler。MyBatis默认情况下会使用PreparedStatementHandler与数据库交互。既然如此，那就着重探讨一下PreparedStatementHandler是如何进行数据库访问的。从以上的doQuery方法来看，查询最终会执行handler的query方法，即PreparedStatementHandler的query方法。
+MyBatis 的 StatementHandler 接口有几个不同的实现类，分别为 SimpleStatementHandler、PreparedStatementHandler 和 CallableStatementHandler。MyBatis 默认情况下会使用 PreparedStatementHandler 与数据库交互。既然如此，那就着重探讨一下 PreparedStatementHandler 是如何进行数据库访问的。从以上的 doQuery 方法来看，查询最终会执行 handler 的 query 方法，即 PreparedStatementHandler 的 query 方法。
 
-在这里会首先调用PreparedStatement对象的execute()方法执行SQL语句，然后调用ResultSetHandler的handleResultSets()方法处理结果集。ResultSetHandler在PreparedStatement的父类BaseStatementHandler中有定义
+在这里会首先调用 PreparedStatement 对象的 execute()方法执行 SQL 语句，然后调用 ResultSetHandler 的 handleResultSets()方法处理结果集。ResultSetHandler 在 PreparedStatement 的父类 BaseStatementHandler 中有定义
 
 ```java
   @Override
@@ -1787,7 +1785,7 @@ MyBatis的StatementHandler接口有几个不同的实现类，分别为SimpleSta
   }
 ```
 
-而ResultSetHandler只有一个默认的实现，即DefaultResultSetHandler类。
+而 ResultSetHandler 只有一个默认的实现，即 DefaultResultSetHandler 类。
 
 ```java
   //
@@ -1835,37 +1833,37 @@ MyBatis的StatementHandler接口有几个不同的实现类，分别为SimpleSta
 
 这里的具体逻辑如下：
 
-1. 首先从Statement对象中获取ResultSet对象，然后将ResultSet包装为ResultSetWrapper对象，通过ResultSetWrapper对象能够更方便地获取数据库字段名称以及字段对应的TypeHandler信息。
-2. 获取Mapper SQL配置中通过resultMap属性指定的ResultMap信息，一条SQL Mapper配置一般只对应一个ResultMap。
-3. 调用handleResultSet()方法对ResultSetWrapper对象进行处理，将结果集转换为Java实体对象，然后将生成的实体对象存放在multipleResults列表中。
-4. 调用collapseSingleResultList()方法对multipleResults进行处理，如果只有一个结果集，就返回结果集中的元素，否则返回多个结果集。
+1. 首先从 Statement 对象中获取 ResultSet 对象，然后将 ResultSet 包装为 ResultSetWrapper 对象，通过 ResultSetWrapper 对象能够更方便地获取数据库字段名称以及字段对应的 TypeHandler 信息。
+2. 获取 Mapper SQL 配置中通过 resultMap 属性指定的 ResultMap 信息，一条 SQL Mapper 配置一般只对应一个 ResultMap。
+3. 调用 handleResultSet()方法对 ResultSetWrapper 对象进行处理，将结果集转换为 Java 实体对象，然后将生成的实体对象存放在 multipleResults 列表中。
+4. 调用 collapseSingleResultList()方法对 multipleResults 进行处理，如果只有一个结果集，就返回结果集中的元素，否则返回多个结果集。
 
-自此，整个Mapper的执行过程也就结束了。
+自此，整个 Mapper 的执行过程也就结束了。
 
-## Mybatis中的缓存
+## Mybatis 中的缓存
 
 ### 一级缓存
 
-MyBatis的缓存分为一级缓存和二级缓存，一级缓存默认是开启的，而且不能关闭。至于一级缓存为什么不能关闭，MyBatis核心开发人员做出了解释：MyBatis的一些关键特性（例如通过\<association>和\<collection>建立级联映射、避免循环引用（circular references）、加速重复嵌套查询等）都是基于MyBatis一级缓存实现的，而且MyBatis结果集映射相关代码重度依赖CacheKey，所以目前MyBatis不支持关闭一级缓存。
+MyBatis 的缓存分为一级缓存和二级缓存，一级缓存默认是开启的，而且不能关闭。至于一级缓存为什么不能关闭，MyBatis 核心开发人员做出了解释：MyBatis 的一些关键特性（例如通过\<association>和\<collection>建立级联映射、避免循环引用（circular references）、加速重复嵌套查询等）都是基于 MyBatis 一级缓存实现的，而且 MyBatis 结果集映射相关代码重度依赖 CacheKey，所以目前 MyBatis 不支持关闭一级缓存。
 
-MyBatis提供了一个配置参数localCacheScope，用于控制一级缓存的级别
+MyBatis 提供了一个配置参数 localCacheScope，用于控制一级缓存的级别
 
 1. SESSION
 2. STATEMENT
 
-当指定localCacheScope参数值为SESSION时，缓存对整个SqlSession有效，只有执行DML语句（更新语句）时，缓存才会被清除。当localCacheScope值为STATEMENT时，缓存仅对当前执行的语句有效，当语句执行完毕后，缓存就会被清空。
+当指定 localCacheScope 参数值为 SESSION 时，缓存对整个 SqlSession 有效，只有执行 DML 语句（更新语句）时，缓存才会被清除。当 localCacheScope 值为 STATEMENT 时，缓存仅对当前执行的语句有效，当语句执行完毕后，缓存就会被清空。
 
 ### 二级缓存
 
-1. 在MyBatis主配置文件中指定cacheEnabled属性值为true。
-2. 在MyBatis Mapper配置文件中，配置缓存策略、缓存刷新频率、缓存的容量等属性
-3. 在配置Mapper时，通过useCache属性指定Mapper执行时是否使用缓存。另外，还可以通过flushCache属性指定Mapper执行后是否刷新缓存
+1. 在 MyBatis 主配置文件中指定 cacheEnabled 属性值为 true。
+2. 在 MyBatis Mapper 配置文件中，配置缓存策略、缓存刷新频率、缓存的容量等属性
+3. 在配置 Mapper 时，通过 useCache 属性指定 Mapper 执行时是否使用缓存。另外，还可以通过 flushCache 属性指定 Mapper 执行后是否刷新缓存
 
-通过上面的配置，MyBatis的二级缓存就可以生效了。执行查询操作时，查询结果会缓存到二级缓存中，执行更新操作后，二级缓存会被清空
+通过上面的配置，MyBatis 的二级缓存就可以生效了。执行查询操作时，查询结果会缓存到二级缓存中，执行更新操作后，二级缓存会被清空
 
-### Mybatis缓存的实现
+### Mybatis 缓存的实现
 
-MyBatis的缓存基于JVM堆内存实现，即所有的缓存数据都存放在Java对象中，并且为缓存的操作行为定义了接口。
+MyBatis 的缓存基于 JVM 堆内存实现，即所有的缓存数据都存放在 Java 对象中，并且为缓存的操作行为定义了接口。
 
 ```java
 public interface Cache {
@@ -1931,7 +1929,7 @@ public interface Cache {
 
 ```
 
-MyBatis中的缓存类采用装饰器模式设计，Cache接口有一个基本的实现类，即PerpetualCache类，该类的实现比较简单，通过一个HashMap实例存放缓存对象。需要注意的是，PerpetualCache类重写了Object类的equals()方法，当两个缓存对象的Id相同时，即认为缓存对象相同。
+MyBatis 中的缓存类采用装饰器模式设计，Cache 接口有一个基本的实现类，即 PerpetualCache 类，该类的实现比较简单，通过一个 HashMap 实例存放缓存对象。需要注意的是，PerpetualCache 类重写了 Object 类的 equals()方法，当两个缓存对象的 Id 相同时，即认为缓存对象相同。
 
 ```java
 public class PerpetualCache implements Cache {
@@ -2002,23 +2000,23 @@ public class PerpetualCache implements Cache {
 
 ```
 
-除了基础的PerpetualCache类之外，MyBatis中为了对PerpetualCache类的功能进行增强，提供了一些缓存的装饰器类
+除了基础的 PerpetualCache 类之外，MyBatis 中为了对 PerpetualCache 类的功能进行增强，提供了一些缓存的装饰器类
 
-BlockingCache：阻塞版本的缓存装饰器，能够保证同一时间只有一个线程到缓存中查找指定的Key对应的数据。
+BlockingCache：阻塞版本的缓存装饰器，能够保证同一时间只有一个线程到缓存中查找指定的 Key 对应的数据。
 
-FifoCache：先入先出缓存装饰器，FifoCache内部有一个维护具有长度限制的Key键值链表（LinkedList实例）和一个被装饰的缓存对象，Key值链表主要是维护Key的FIFO顺序，而缓存存储和获取则交给被装饰的缓存对象来完成。
+FifoCache：先入先出缓存装饰器，FifoCache 内部有一个维护具有长度限制的 Key 键值链表（LinkedList 实例）和一个被装饰的缓存对象，Key 值链表主要是维护 Key 的 FIFO 顺序，而缓存存储和获取则交给被装饰的缓存对象来完成。
 
 LoggingCache：为缓存增加日志输出功能，记录缓存的请求次数和命中次数，通过日志输出缓存命中率。
 
-LruCache：最近最少使用的缓存装饰器，当缓存容量满了之后，使用LRU算法淘汰最近最少使用的Key和Value。LruCache中通过重写LinkedHashMap类的removeEldestEntry()方法获取最近最少使用的Key值，将Key值保存在LruCache类的eldestKey属性中，然后在缓存中添加对象时，淘汰eldestKey对应的Value值。具体实现细节读者可参考LruCache类的源码。
+LruCache：最近最少使用的缓存装饰器，当缓存容量满了之后，使用 LRU 算法淘汰最近最少使用的 Key 和 Value。LruCache 中通过重写 LinkedHashMap 类的 removeEldestEntry()方法获取最近最少使用的 Key 值，将 Key 值保存在 LruCache 类的 eldestKey 属性中，然后在缓存中添加对象时，淘汰 eldestKey 对应的 Value 值。具体实现细节读者可参考 LruCache 类的源码。
 
-ScheduledCache：自动刷新缓存装饰器，当操作缓存对象时，如果当前时间与上次清空缓存的时间间隔大于指定的时间间隔，则清空缓存。清空缓存的动作由getObject()、putObject()、removeObject()等方法触发。
+ScheduledCache：自动刷新缓存装饰器，当操作缓存对象时，如果当前时间与上次清空缓存的时间间隔大于指定的时间间隔，则清空缓存。清空缓存的动作由 getObject()、putObject()、removeObject()等方法触发。
 
-SerializedCache：序列化缓存装饰器，向缓存中添加对象时，对添加的对象进行序列化处理，从缓存中取出对象时，进行反序列化处理。SoftCache：软引用缓存装饰器，SoftCache内部维护了一个缓存对象的强引用队列和软引用队列，缓存以软引用的方式添加到缓存中，并将软引用添加到队列中，获取缓存对象时，如果对象已经被回收，则移除Key，如果未被回收，则将对象添加到强引用队列中，避免被回收，如果强引用队列已经满了，则移除最早入队列的对象的引用。
+SerializedCache：序列化缓存装饰器，向缓存中添加对象时，对添加的对象进行序列化处理，从缓存中取出对象时，进行反序列化处理。SoftCache：软引用缓存装饰器，SoftCache 内部维护了一个缓存对象的强引用队列和软引用队列，缓存以软引用的方式添加到缓存中，并将软引用添加到队列中，获取缓存对象时，如果对象已经被回收，则移除 Key，如果未被回收，则将对象添加到强引用队列中，避免被回收，如果强引用队列已经满了，则移除最早入队列的对象的引用。
 
-SynchronizedCache：线程安全缓存装饰器，SynchronizedCache的实现比较简单，为了保证线程安全，对操作缓存的方法使用synchronized关键字修饰。TransactionalCache：事务缓存装饰器，该缓存与其他缓存的不同之处在于，TransactionalCache增加了两个方法，即commit()和rollback()。当写入缓存时，只有调用commit()方法
+SynchronizedCache：线程安全缓存装饰器，SynchronizedCache 的实现比较简单，为了保证线程安全，对操作缓存的方法使用 synchronized 关键字修饰。TransactionalCache：事务缓存装饰器，该缓存与其他缓存的不同之处在于，TransactionalCache 增加了两个方法，即 commit()和 rollback()。当写入缓存时，只有调用 commit()方法
 
-Cache的使用也是非常简单，我们可以使用MyBatis提供的缓存装饰器类对基础的PerpetualCache类的功能进行增强，使用不同的装饰器后，缓存对象则拥有对应的功能。
+Cache 的使用也是非常简单，我们可以使用 MyBatis 提供的缓存装饰器类对基础的 PerpetualCache 类的功能进行增强，使用不同的装饰器后，缓存对象则拥有对应的功能。
 
 ```java
     public void testCache() {
@@ -2035,12 +2033,12 @@ Cache的使用也是非常简单，我们可以使用MyBatis提供的缓存装�
 
 ### 一级缓存的实现原理
 
-MyBatis的一级缓存是SqlSession级别的缓存，SqlSession提供了面向用户的API，但是真正执行SQL操作的是Executor组件。Executor采用模板方法设计模式，BaseExecutor类用于处理一些通用的逻辑，其中一级缓存相关的逻辑就是在BaseExecutor类中完成的。
+MyBatis 的一级缓存是 SqlSession 级别的缓存，SqlSession 提供了面向用户的 API，但是真正执行 SQL 操作的是 Executor 组件。Executor 采用模板方法设计模式，BaseExecutor 类用于处理一些通用的逻辑，其中一级缓存相关的逻辑就是在 BaseExecutor 类中完成的。
 
-那么接下来我们就动手进入到BaseExecutor中看看，一级缓存使用PerpetualCache实例实现，在BaseExecutor类中维护了两个PerpetualCache属性
+那么接下来我们就动手进入到 BaseExecutor 中看看，一级缓存使用 PerpetualCache 实例实现，在 BaseExecutor 类中维护了两个 PerpetualCache 属性
 
-1. localCache属性用于缓存MyBatis查询结果
-2. localOutputParameterCache属性用于缓存存储过程调用结果
+1. localCache 属性用于缓存 MyBatis 查询结果
+2. localOutputParameterCache 属性用于缓存存储过程调用结果
 
 ```java
 public abstract class BaseExecutor implements Executor {
@@ -2059,7 +2057,7 @@ public abstract class BaseExecutor implements Executor {
 }
 ```
 
-在初始化的时候，Mybatis就创建了key为LocalCache 和LocalOutputParameterCache的缓存了，如果两次查询操作CacheKey对象相同，就认为这两次查询执行的是相同的SQL语句
+在初始化的时候，Mybatis 就创建了 key 为 LocalCache 和 LocalOutputParameterCache 的缓存了，如果两次查询操作 CacheKey 对象相同，就认为这两次查询执行的是相同的 SQL 语句
 
 ```java
   protected BaseExecutor(Configuration configuration, Transaction transaction) {
@@ -2073,7 +2071,7 @@ public abstract class BaseExecutor implements Executor {
   }
 ```
 
-在查询query方法时会使用到Cache
+在查询 query 方法时会使用到 Cache
 
 ```java
   @Override
@@ -2085,14 +2083,14 @@ public abstract class BaseExecutor implements Executor {
   }
 ```
 
-createCacheKey是查询时采用的构建一级缓存的方法，而这段代码就是描述了在什么条件下我们认为两次查询的SQL的结果是一致 的
+createCacheKey 是查询时采用的构建一级缓存的方法，而这段代码就是描述了在什么条件下我们认为两次查询的 SQL 的结果是一致 的
 
-1. Mapper的Id，即Mapper命名空间与\<select|update|insert|delete>标签的Id组成的全局限定名。
+1. Mapper 的 Id，即 Mapper 命名空间与\<select|update|insert|delete>标签的 Id 组成的全局限定名。
 2. 查询结果的偏移量及查询的条数。
-3. 具体的SQL语句及SQL语句中需要传递的所有参数。
-4. MyBatis主配置文件中，通过\<environment>标签配置的环境信息对应的Id属性值。
+3. 具体的 SQL 语句及 SQL 语句中需要传递的所有参数。
+4. MyBatis 主配置文件中，通过\<environment>标签配置的环境信息对应的 Id 属性值。
 
-执行两次查询时，只有上面的信息完全相同时，才会认为两次查询执行的是相同的SQL语句，缓存才会生效
+执行两次查询时，只有上面的信息完全相同时，才会认为两次查询执行的是相同的 SQL 语句，缓存才会生效
 
 ```java
 @Override
@@ -2136,7 +2134,7 @@ createCacheKey是查询时采用的构建一级缓存的方法，而这段代码
   }
 ```
 
-好，我们明白了什么情况下会使用cache了，那么cache是如何使用的呢，继续回头看query方法，他最终会返回query的重载方法，在BaseExecutor类的query()方法中，首先根据缓存Key从localCache属性中查找是否有缓存对象，如果查找不到，则调用queryFromDatabase()方法从数据库中获取数据，然后将数据写入localCache对象中。如果localCache中缓存了本次查询的结果，则直接从缓存中获取。需要注意的是，如果localCacheScope属性设置为STATEMENT，则每次查询操作完成后，都会调用clearLocalCache()方法清空缓存。
+好，我们明白了什么情况下会使用 cache 了，那么 cache 是如何使用的呢，继续回头看 query 方法，他最终会返回 query 的重载方法，在 BaseExecutor 类的 query()方法中，首先根据缓存 Key 从 localCache 属性中查找是否有缓存对象，如果查找不到，则调用 queryFromDatabase()方法从数据库中获取数据，然后将数据写入 localCache 对象中。如果 localCache 中缓存了本次查询的结果，则直接从缓存中获取。需要注意的是，如果 localCacheScope 属性设置为 STATEMENT，则每次查询操作完成后，都会调用 clearLocalCache()方法清空缓存。
 
 ```java
   @SuppressWarnings("unchecked")
@@ -2179,7 +2177,7 @@ createCacheKey是查询时采用的构建一级缓存的方法，而这段代码
   }
 ```
 
-除此之外，MyBatis会在执行完任意更新语句后清空缓存，我们可以看一下BaseExecutor类的update()方法，可以看到，MyBatis在调用doUpdate()方法完成更新操作之前，首先会调用clearLocalCache()方法清空缓存。
+除此之外，MyBatis 会在执行完任意更新语句后清空缓存，我们可以看一下 BaseExecutor 类的 update()方法，可以看到，MyBatis 在调用 doUpdate()方法完成更新操作之前，首先会调用 clearLocalCache()方法清空缓存。
 
 ```java
   @Override
@@ -2193,17 +2191,17 @@ createCacheKey是查询时采用的构建一级缓存的方法，而这段代码
   }
 ```
 
-在分布式环境下，务必将MyBatis的localCacheScope属性设置为STATEMENT，避免其他应用节点执行SQL更新语句后，本节点缓存得不到刷新而导致的数据一致性问题。
+在分布式环境下，务必将 MyBatis 的 localCacheScope 属性设置为 STATEMENT，避免其他应用节点执行 SQL 更新语句后，本节点缓存得不到刷新而导致的数据一致性问题。
 
 ### 二级缓存的实现原理
 
-MyBatis二级缓存在默认情况下是关闭的，因此需要通过设置cacheEnabled参数值为true来开启二级缓存。
+MyBatis 二级缓存在默认情况下是关闭的，因此需要通过设置 cacheEnabled 参数值为 true 来开启二级缓存。
 
-之前就有提到过，作为处理Mapper的Executor有着多种实现，其中CachingExecutor相对于其他几个实现来说，多增加了二级缓存的功能
+之前就有提到过，作为处理 Mapper 的 Executor 有着多种实现，其中 CachingExecutor 相对于其他几个实现来说，多增加了二级缓存的功能
 
-在Configuration类中有着一个非常典型的工厂方法模式的使用，就是Executor实例的生成，在Configuration中有一个newExecutor方法用于根据executorType来判断使用什么Executor的
+在 Configuration 类中有着一个非常典型的工厂方法模式的使用，就是 Executor 实例的生成，在 Configuration 中有一个 newExecutor 方法用于根据 executorType 来判断使用什么 Executor 的
 
-下面代码：如果cacheEnabled属性值为true（开启了二级缓存），则使用CachingExecutor对普通的Executor对象进行装饰，CachingExecutor在普通Executor的基础上增加了二级缓存功能
+下面代码：如果 cacheEnabled 属性值为 true（开启了二级缓存），则使用 CachingExecutor 对普通的 Executor 对象进行装饰，CachingExecutor 在普通 Executor 的基础上增加了二级缓存功能
 
 ```java
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
@@ -2224,9 +2222,9 @@ MyBatis二级缓存在默认情况下是关闭的，因此需要通过设置cach
   }
 ```
 
-好，我们目前清楚了CachingExecutor是如何诞生的，那么接下来我们就深入到CachingExecutor中，看看他是如何实现二级缓存的吧
+好，我们目前清楚了 CachingExecutor 是如何诞生的，那么接下来我们就深入到 CachingExecutor 中，看看他是如何实现二级缓存的吧
 
-首先我们看看他维护了什么的资源，CachingExecutor是个增强类，所以肯定是先需要一个普通的Executor的，然后就是TransactionalCacheManager，TransactionalCacheManager用于管理所有的二级缓存对象。
+首先我们看看他维护了什么的资源，CachingExecutor 是个增强类，所以肯定是先需要一个普通的 Executor 的，然后就是 TransactionalCacheManager，TransactionalCacheManager 用于管理所有的二级缓存对象。
 
 ```java
 public class CachingExecutor implements Executor {
@@ -2235,9 +2233,9 @@ public class CachingExecutor implements Executor {
   private final TransactionalCacheManager tcm = new TransactionalCacheManager();
 ```
 
-不妨我们先探究一下TransactionalCacheManager是如何实现的
+不妨我们先探究一下 TransactionalCacheManager 是如何实现的
 
-以下代码通过一个HashMap对象维护所有二级缓存实例对应的TransactionalCache对象，在TransactionalCacheManager类的getObject()方法和putObject()方法中都会调用getTransactionalCache()方法获取二级缓存对象对应的TransactionalCache对象，然后对TransactionalCache对象进行操作。
+以下代码通过一个 HashMap 对象维护所有二级缓存实例对应的 TransactionalCache 对象，在 TransactionalCacheManager 类的 getObject()方法和 putObject()方法中都会调用 getTransactionalCache()方法获取二级缓存对象对应的 TransactionalCache 对象，然后对 TransactionalCache 对象进行操作。
 
 ```java
 public class TransactionalCacheManager {
@@ -2278,9 +2276,9 @@ public class TransactionalCacheManager {
 
 ```
 
-好了，对于管理缓存的对象我们已经找到了，那么接下来我们就要探讨一下CachingExecutor是如何基于二级缓存来进行查询的吧
+好了，对于管理缓存的对象我们已经找到了，那么接下来我们就要探讨一下 CachingExecutor 是如何基于二级缓存来进行查询的吧
 
-首先他跟我们以往看过的SImpleExecutor的query是没什么区别的
+首先他跟我们以往看过的 SImpleExecutor 的 query 是没什么区别的
 
 ```java
  @Override
@@ -2292,9 +2290,9 @@ public class TransactionalCacheManager {
   }
 ```
 
-关键在于返回的query重载方法上
+关键在于返回的 query 重载方法上
 
-在CachingExecutor的query()方法中，首先调用createCacheKey()方法创建缓存Key对象，然后调用MappedStatement对象的getCache()方法获取MappedStatement对象中维护的二级缓存对象。然后尝试从二级缓存对象中获取结果，如果获取不到，则调用目标Executor对象的query()方法从数据库获取数据，再将数据添加到二级缓存中。当执行更新语句后，同一命名空间下的二级缓存将会被清空。
+在 CachingExecutor 的 query()方法中，首先调用 createCacheKey()方法创建缓存 Key 对象，然后调用 MappedStatement 对象的 getCache()方法获取 MappedStatement 对象中维护的二级缓存对象。然后尝试从二级缓存对象中获取结果，如果获取不到，则调用目标 Executor 对象的 query()方法从数据库获取数据，再将数据添加到二级缓存中。当执行更新语句后，同一命名空间下的二级缓存将会被清空。
 
 ```java
  @Override
@@ -2323,7 +2321,7 @@ public class TransactionalCacheManager {
   }
 ```
 
-跟SimpleExecutor相似的就是缓存也会在触发update方法时被刷新或者清除
+跟 SimpleExecutor 相似的就是缓存也会在触发 update 方法时被刷新或者清除
 
 ```java
  @Override
@@ -2334,7 +2332,7 @@ public class TransactionalCacheManager {
 
 ```
 
-而是否进行清除缓存需要查看\<select|update|delete|insert>标签的flushCache属性，如果属性值为true，就清空缓存。\<select>标签的flushCache属性值默认为false，而\<update|delete|insert>标签的flushCache属性值默认为true。
+而是否进行清除缓存需要查看\<select|update|delete|insert>标签的 flushCache 属性，如果属性值为 true，就清空缓存。\<select>标签的 flushCache 属性值默认为 false，而\<update|delete|insert>标签的 flushCache 属性值默认为 true。
 
 ```java
   private void flushCacheIfRequired(MappedStatement ms) {
@@ -2345,14 +2343,14 @@ public class TransactionalCacheManager {
   }
 ```
 
-二级缓存的实现就是这样的了，而刚刚有提到Cache其实是从MappedStatement对象中获取的，所以这部分我们也是需要一探究竟的
+二级缓存的实现就是这样的了，而刚刚有提到 Cache 其实是从 MappedStatement 对象中获取的，所以这部分我们也是需要一探究竟的
 
-XMLMapperBuilder在解析Mapper配置时会调用cacheElement()方法解析\<cache>标签，在获取\<cache>标签的所有属性信息后，调用MapperBuilderAssistant对象的userNewCache()方法创建二级缓存实例，然后通过MapperBuilderAssistant的currentCache属性保存二级缓存对象的引用。在调用MapperBuilderAssistant对象的addMappedStatement()方法创建MappedStatement对象时会将当前命名空间对应的二级缓存对象的引用添加到MappedStatement对象中。
+XMLMapperBuilder 在解析 Mapper 配置时会调用 cacheElement()方法解析\<cache>标签，在获取\<cache>标签的所有属性信息后，调用 MapperBuilderAssistant 对象的 userNewCache()方法创建二级缓存实例，然后通过 MapperBuilderAssistant 的 currentCache 属性保存二级缓存对象的引用。在调用 MapperBuilderAssistant 对象的 addMappedStatement()方法创建 MappedStatement 对象时会将当前命名空间对应的二级缓存对象的引用添加到 MappedStatement 对象中。
 
 ```java
 public class XMLMapperBuilder extends BaseBuilder {
 
- 
+
   private final MapperBuilderAssistant builderAssistant;
 
 ...
@@ -2376,7 +2374,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 ```
 
-useNewCache就是将currentCache设置为传入的cache
+useNewCache 就是将 currentCache 设置为传入的 cache
 
 ```java
   public Cache useNewCache(Class<? extends Cache> typeClass, Class<? extends Cache> evictionClass, Long flushInterval,
@@ -2390,7 +2388,7 @@ useNewCache就是将currentCache设置为传入的cache
   }
 ```
 
-而在addMapperStatement中就实现了将Cache添加到MapperStatement了
+而在 addMapperStatement 中就实现了将 Cache 添加到 MapperStatement 了
 
 ```java
   public MappedStatement addMappedStatement(String id, SqlSource sqlSource, StatementType statementType,

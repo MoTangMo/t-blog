@@ -753,7 +753,7 @@ export function <span class="token function">reactive</span><span class="token p
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>然后将KeyToDeMap中的类型修改成Dep,这样就可以做到一个kep对应多个依赖了</p>
 <div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token keyword">type</span> <span class="token class-name">KeyToDeMap</span> <span class="token operator">=</span> Map<span class="token operator">&lt;</span><span class="token builtin">any</span><span class="token punctuation">,</span>Dep<span class="token operator">></span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>那么接下来一起来看看如何处理收集Dep的函数，此时根据key get出来的就是一个Dep类型的对象了</p>
-<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/***
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token doc-comment comment">/***
  * 
  * 收集依赖
  * 
@@ -792,9 +792,9 @@ export function <span class="token function">reactive</span><span class="token p
 <span class="token punctuation">}</span>
 
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>因为Dep 实际上就是一个Set，所以我们要从Set中获取一个个effect，然后逐个执行</p>
-<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token doc-comment comment">/**
  * 依次执行def内的函数
- * @param dep 
+ * <span class="token keyword">@param</span> <span class="token parameter">dep</span> 
  * 
  */</span>
 <span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">triggerEffects</span><span class="token punctuation">(</span>dep<span class="token operator">:</span> Dep<span class="token punctuation">)</span><span class="token punctuation">{</span>
@@ -807,7 +807,7 @@ export function <span class="token function">reactive</span><span class="token p
     <span class="token punctuation">}</span>
 
 <span class="token punctuation">}</span>
-<span class="token comment">/**
+<span class="token doc-comment comment">/**
  * 
  * 触发依赖
  * 
@@ -869,11 +869,11 @@ export function <span class="token function">reactive</span><span class="token p
     <span class="token keyword">return</span>  <span class="token function">createRef</span><span class="token punctuation">(</span>value<span class="token punctuation">,</span><span class="token boolean">false</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>首先会有一个createRef方法构建Ref数据，这里首先会判断数据是否是一个Ref数据，是否是Ref数据得从RefImpl这个Ref实现类中的_val_isRef属性进行判断的</p>
-<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token doc-comment comment">/**
  * 构建Ref响应式数据
- * @param rawValue 
- * @param shallow 
- * @returns 
+ * <span class="token keyword">@param</span> <span class="token parameter">rawValue</span> 
+ * <span class="token keyword">@param</span> <span class="token parameter">shallow</span> 
+ * <span class="token keyword">@returns</span> 
  */</span>
 <span class="token keyword">function</span> <span class="token function">createRef</span><span class="token punctuation">(</span>rawValue<span class="token operator">:</span><span class="token builtin">unknown</span> <span class="token punctuation">,</span> shallow<span class="token operator">:</span> <span class="token builtin">boolean</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">isRef</span><span class="token punctuation">(</span>rawValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
@@ -884,7 +884,7 @@ export function <span class="token function">reactive</span><span class="token p
 <span class="token punctuation">}</span>
 
 
-<span class="token comment">/**
+<span class="token doc-comment comment">/**
  * 
  * 判断是否是Ref类型数据
  * 
@@ -909,19 +909,19 @@ export function <span class="token function">reactive</span><span class="token p
 <span class="token punctuation">}</span>
 
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>toReactive的实现就比较简单了，就是判断value是不是一个复杂的对象类型</p>
-<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token doc-comment comment">/**
  * 将传入的数据转为Reactive数据，如果不是复杂对象类型则直接返回value
- * @param value 
- * @returns 
+ * <span class="token keyword">@param</span> <span class="token parameter">value</span> 
+ * <span class="token keyword">@returns</span> 
  */</span>
 <span class="token keyword">export</span> <span class="token keyword">const</span> toReactive <span class="token operator">=</span> <span class="token operator">&lt;</span><span class="token constant">T</span> <span class="token keyword">extends</span> <span class="token class-name"><span class="token builtin">unknown</span></span><span class="token operator">></span><span class="token punctuation">(</span>value <span class="token operator">:</span> <span class="token constant">T</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token function">isObject</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span> <span class="token operator">?</span> <span class="token function">reactive</span><span class="token punctuation">(</span>value <span class="token keyword">as</span> object<span class="token punctuation">)</span> <span class="token operator">:</span> value<span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 
-<span class="token comment">/**
+<span class="token doc-comment comment">/**
  * 判断数据是否数据一个object类型
- * @param val 
- * @returns 
+ * <span class="token keyword">@param</span> <span class="token parameter">val</span> 
+ * <span class="token keyword">@returns</span> 
  */</span>
 <span class="token keyword">export</span> <span class="token keyword">const</span> <span class="token function-variable function">isObject</span> <span class="token operator">=</span> <span class="token punctuation">(</span>val<span class="token operator">:</span><span class="token builtin">unknown</span><span class="token punctuation">)</span> <span class="token operator">=></span>  <span class="token punctuation">{</span>
     <span class="token keyword">return</span> val <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token keyword">typeof</span> val <span class="token operator">===</span> <span class="token string">'object'</span>
@@ -942,9 +942,9 @@ export function <span class="token function">reactive</span><span class="token p
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>依赖收集方法，依赖收集跟reactive也是一样的</p>
-<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token doc-comment comment">/**
  * 收集依赖，根据activeEffect来判断该依赖是否被激活，是的话就直接收集起来
- * @param ref 
+ * <span class="token keyword">@param</span> <span class="token parameter">ref</span> 
  */</span>
 <span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">trackRefValue</span><span class="token punctuation">(</span>ref<span class="token operator">:</span>RefImpl<span class="token operator">&lt;</span><span class="token builtin">unknown</span><span class="token operator">></span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     <span class="token keyword">if</span><span class="token punctuation">(</span>activeEffect<span class="token punctuation">)</span><span class="token punctuation">{</span>
@@ -991,10 +991,10 @@ export function <span class="token function">reactive</span><span class="token p
     <span class="token keyword">return</span> cRef
 <span class="token punctuation">}</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>isFunction方法的实现也是非常简单的</p>
-<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token comment">/**
+<div class="language-typescript line-numbers-mode" data-ext="ts" data-title="ts"><pre v-pre class="language-typescript"><code><span class="token doc-comment comment">/**
  * 判断传入的值是否属于函数类型
- * @param val 
- * @returns 
+ * <span class="token keyword">@param</span> <span class="token parameter">val</span> 
+ * <span class="token keyword">@returns</span> 
  */</span>
 <span class="token keyword">export</span> <span class="token keyword">const</span> isFunction <span class="token operator">=</span> <span class="token punctuation">(</span>val<span class="token operator">:</span><span class="token builtin">unknown</span><span class="token punctuation">)</span> <span class="token operator">:</span>val <span class="token keyword">is</span> <span class="token builtin">Function</span> <span class="token operator">=></span> <span class="token keyword">typeof</span> val <span class="token operator">===</span> <span class="token string">'function'</span>
 </code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h4 id="computedrefimpl-类实现" tabindex="-1"><a class="header-anchor" href="#computedrefimpl-类实现"><span>ComputedRefImpl 类实现</span></a></h4>

@@ -1,12 +1,12 @@
 import { defineClientConfig } from "vuepress/client";
-import { hasGlobalComponent } from "/Users/a0000/Documents/project/t-blog/node_modules/@vuepress/helper/lib/client/index.js";
+import { hasGlobalComponent } from "E:/mynote/t-blog/node_modules/@vuepress/helper/lib/client/index.js";
 
-import { useScriptTag } from "/Users/a0000/Documents/project/t-blog/node_modules/@vueuse/core/index.mjs";
-import FontIcon from "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-plugin-components/lib/client/components/FontIcon.js";
-import Badge from "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-plugin-components/lib/client/components/Badge.js";
-import VPCard from "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-plugin-components/lib/client/components/VPCard.js";
+import { useScriptTag } from "E:/mynote/t-blog/node_modules/@vueuse/core/index.mjs";
+import FontIcon from "E:/mynote/t-blog/node_modules/vuepress-plugin-components/lib/client/components/FontIcon.js";
+import Badge from "E:/mynote/t-blog/node_modules/vuepress-plugin-components/lib/client/components/Badge.js";
+import VPCard from "E:/mynote/t-blog/node_modules/vuepress-plugin-components/lib/client/components/VPCard.js";
 
-import "/Users/a0000/Documents/project/t-blog/node_modules/vuepress-plugin-components/lib/client/styles/sr-only.scss";
+import "E:/mynote/t-blog/node_modules/vuepress-plugin-components/lib/client/styles/sr-only.scss";
 
 export default defineClientConfig({
   enhance: ({ app }) => {
