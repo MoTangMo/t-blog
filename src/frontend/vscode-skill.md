@@ -198,7 +198,6 @@ tag:
 
 只需要在插件库中搜索 Prettier 即可
 
-![](image/image_DvwxAL-yht.png)
 
 安装完毕以后，我们可以在我们的项目目录下创建
 
