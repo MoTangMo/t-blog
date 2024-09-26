@@ -10,17 +10,24 @@ export default sidebar({
       children: "structure",
     },
     {
-      text: "后端笔记",
+      text: "后端主航",
       icon: "laptop-code",
       prefix: "backend/",
       link: "backend/",
       children: "structure",
     },
     {
-      text: "前端笔记",
+      text: "前端掌舵",
       icon: "laptop-code",
       prefix: "frontend/",
       link: "frontend/",
+      children: "structure",
+    },
+    {
+      text: "读书笔记",
+      icon: "laptop-code",
+      prefix: "reading/",
+      link: "reading/",
       children: "structure",
     }
   ],
