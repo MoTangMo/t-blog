@@ -2,7 +2,7 @@ import { sidebar } from "vuepress-theme-hope";
 
 export default sidebar({
   "/": [
-      {
+    {
       text: "设计模式",
       icon: "laptop-code",
       prefix: "design-patterns/",
@@ -28,6 +28,13 @@ export default sidebar({
       icon: "laptop-code",
       prefix: "reading/",
       link: "reading/",
+      children: "structure",
+    },
+    {
+      text: "周记",
+      icon: "laptop-code",
+      prefix: "weekly-diary/",
+      link: "weekly-diary/",
       children: "structure",
     }
   ],

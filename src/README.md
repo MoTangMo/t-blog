@@ -8,7 +8,7 @@ bgImageDark: https://tg-blog.oss-cn-guangzhou.aliyuncs.com/home/bgImage.jpg
 heroImage: https://tg-blog.oss-cn-guangzhou.aliyuncs.com/home/avatar.svg
 heroText: T-Blog
 heroFullScreen: true
-tagline: 目有繁星，沐光而行
+tagline: 在无人问津的地方历练，在万众瞩目的地方出现
 projects:
   - icon: project
     name: 代码生成器

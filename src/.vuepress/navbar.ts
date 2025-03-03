@@ -23,5 +23,10 @@ export default navbar([
     text: "读书笔记",
     icon: "book",
     link: "/reading/",
+  },
+  {
+    text: "周记",
+    icon: "pen-to-square",
+    link: "/weekly-diary/",
   }
 ]);
