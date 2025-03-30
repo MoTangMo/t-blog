@@ -1,7 +1,6 @@
 ---
 title: Spring Security
 icon: pen-to-square
-cover: /assets/images/cover2.jpg
 date: 2024-05-01
 star: true
 sticky: true

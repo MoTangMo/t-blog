@@ -1,6 +1,5 @@
 ---
 title: VS CODE 模板
-cover: /assets/images/cover1.jpg
 icon: code
 order: 3
 author: Mr.T

@@ -1,7 +1,6 @@
 ---
 title: Spring Bean 出生篇(一)
 icon: pen-to-square
-cover: /assets/images/cover3.jpg
 date: 2025-1-6
 star: true
 sticky: true

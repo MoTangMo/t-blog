@@ -1,7 +1,6 @@
 ---
 title: 重学Vue3 
 icon: code
-cover: /assets/images/cover5.jpg
 date: 2024-07-21
 star: true
 sticky: true

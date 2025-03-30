@@ -1,6 +1,5 @@
 ---
 title: 工厂模式
-cover: /assets/images/cover6.jpg
 icon: code
 author: Mr.T
 # 设置写作时间

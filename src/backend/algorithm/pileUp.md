@@ -1,7 +1,6 @@
 ---
 title: 堆
 icon: pen-to-square
-cover: /assets/images/cover5.jpg
 date: 2024-06-12
 star: true
 sticky: true

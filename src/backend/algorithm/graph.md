@@ -1,7 +1,6 @@
 ---
 title: 图
 icon: pen-to-square
-cover: /assets/images/cover3.jpg
 date: 2024-06-12
 star: true
 sticky: true

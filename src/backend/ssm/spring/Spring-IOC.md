@@ -1,7 +1,6 @@
 ---
 title: IOC 容器篇
 icon: pen-to-square
-cover: /assets/images/cover2.jpg
 date: 2024-12-23
 star: true
 sticky: true

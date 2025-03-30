@@ -1,6 +1,5 @@
 ---
 title: 建造者模式
-cover: /assets/images/cover7.jpg
 icon: code
 author: Mr.T
 # 设置写作时间

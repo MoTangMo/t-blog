@@ -1,6 +1,5 @@
 ---
 title: 单例模式
-cover: /assets/images/cover4.jpg
 icon: code
 author: Mr.T
 # 设置写作时间
