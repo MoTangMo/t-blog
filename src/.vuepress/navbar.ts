@@ -28,5 +28,10 @@ export default navbar([
     text: "周记",
     icon: "pen-to-square",
     link: "/weekly-diary/",
+  },
+  {
+    text: "AI系列",
+    icon: "pen-to-square",
+    link: "/ai/",
   }
 ]);

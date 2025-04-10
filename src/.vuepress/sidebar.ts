@@ -36,6 +36,13 @@ export default sidebar({
       prefix: "weekly-diary/",
       link: "weekly-diary/",
       children: "structure",
+    },
+    {
+      text: "AI系列",
+      icon: "laptop-code",
+      prefix: "ai/",
+      link: "ai/",
+      children: "structure",
     }
   ],
 });
