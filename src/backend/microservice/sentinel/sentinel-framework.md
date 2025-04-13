@@ -1,12 +1,15 @@
 ---
-title: 认识 Sentinel 代码架构
-index: false
-icon: code
+title: 初识 Sentinel 代码架构
+icon: pen-to-square
+date: 2025-4-13
+star: true
+sticky: true
 category:
   - 微服务
+tag:
+  - 服务降级
   - Java
   - 源码
-  - 服务降级
   - 服务限流
 ---
 
